@@ -1,0 +1,1919 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cine Livre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
+<style>
+/* Layout: barra fixa com marca, separadores e pesquisa; fiadas horizontais de cartazes; folha de detalhe; leitor em ecrã inteiro. */
+:root{
+  --bg:#10151a; --surface:#182028; --surface2:#222c36; --line:#2d3944;
+  --fg:#eef1f3; --muted:#95a3af; --accent:#e4472b; --accent-fg:#fff; --gold:#f2b705;
+  --display:'Bricolage Grotesque','Arial Narrow',system-ui,sans-serif;
+  --body:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#f3f5f3; --surface:#ffffff; --surface2:#e8ecea; --line:#d3dad6;
+    --fg:#14191d; --muted:#5a6872; --accent:#c8321a; --accent-fg:#fff; --gold:#a97c00;
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#f3f5f3; --surface:#ffffff; --surface2:#e8ecea; --line:#d3dad6;
+  --fg:#14191d; --muted:#5a6872; --accent:#c8321a; --accent-fg:#fff; --gold:#a97c00;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);min-height:100vh}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+.wrap{max-width:1280px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* barra */
+.top{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-top:12px;padding-bottom:12px}
+.brand{display:flex;align-items:center;gap:10px;font:800 22px/1 var(--display);letter-spacing:-.01em;margin-right:auto}
+.mark{width:26px;height:26px;border-radius:7px;background:var(--accent);display:grid;place-items:center}
+.mark::after{content:"";width:9px;height:11px;background:var(--accent-fg);clip-path:polygon(0 0,100% 50%,0 100%);margin-left:2px}
+nav{display:flex;gap:4px;overflow-x:auto;max-width:100%}
+nav button{background:none;border:0;padding:8px 12px;border-radius:8px;color:var(--muted);font-weight:600;white-space:nowrap}
+nav button[aria-current="page"]{color:var(--fg);background:var(--surface2)}
+.sform{display:flex;gap:6px;flex:1 1 220px;max-width:360px}
+.sform input{flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+.btn{background:var(--accent);color:var(--accent-fg);border:0;border-radius:8px;padding:9px 16px;font-weight:600}
+.btn.ghost{background:var(--surface2);color:var(--fg)}
+.btn:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+main{padding-top:22px;padding-bottom:48px}
+.sec{margin-bottom:30px}
+.sec h2{font-size:21px;margin-bottom:12px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:-6px 0 14px}
+.row{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 2px 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:20px 14px}
+
+/* cartões */
+.card{all:unset;box-sizing:border-box;display:block;cursor:pointer;scroll-snap-align:start}
+.row .card{flex:0 0 min(224px,64vw)}
+.thumb{position:relative;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:var(--surface2);border:1px solid var(--line)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .ph{position:absolute;inset:0;display:grid;place-items:center;font:800 40px var(--display);color:var(--muted)}
+.card:hover .thumb{border-color:var(--accent)}
+.card:focus-visible .thumb{outline:3px solid var(--gold);outline-offset:2px}
+.ct{margin-top:8px;font-weight:600;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cy{color:var(--muted);font-size:13px}
+.bar{position:absolute;left:0;right:0;bottom:0;height:5px;background:rgba(0,0,0,.55)}
+.bar i{display:block;height:100%;background:var(--accent)}
+.card.fav .thumb::after{content:"♥";position:absolute;top:7px;right:8px;color:var(--accent-fg);background:var(--accent);width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:13px}
+.skel .thumb{animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.5}}
+@media (prefers-reduced-motion:reduce){.skel .thumb{animation:none}}
+.err{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.empty{border:1px dashed var(--line);border-radius:12px;padding:28px 20px;text-align:center;color:var(--muted)}
+
+/* filtros */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.filters select,.filters input{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+.filters input{flex:1 1 200px}
+.count{color:var(--muted);margin-bottom:12px}
+
+/* ficheiros */
+.drop{border:2px dashed var(--line);border-radius:14px;padding:28px 18px;text-align:center;background:var(--surface);margin-bottom:20px}
+.drop.over{border-color:var(--accent)}
+.drop p{margin:6px 0 14px;color:var(--muted)}
+.lrow{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.lrow .nm{flex:1;min-width:0;overflow-wrap:anywhere}
+.lrow small{color:var(--muted);display:block}
+
+/* detalhe */
+dialog{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:14px;padding:0;width:min(700px,calc(100vw - 24px));max-height:90vh;overflow:auto}
+dialog::backdrop{background:rgba(0,0,0,.65)}
+.dh{aspect-ratio:16/9;background:var(--surface2);position:relative}
+.dh img{width:100%;height:100%;object-fit:cover;display:block}
+.db{padding:18px 20px 22px;display:grid;gap:12px}
+.db h2{font-size:26px;letter-spacing:-.01em}
+.meta{color:var(--muted);font-size:14px}
+.desc{color:var(--fg);opacity:.9;max-height:9.5em;overflow:auto}
+.acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.acts select{background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:9px 10px;max-width:100%}
+.x{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.6);color:#fff;border:0;width:36px;height:36px;border-radius:50%;font-size:18px}
+
+/* leitor */
+#player{position:fixed;inset:0;background:#000;z-index:100;display:flex;flex-direction:column;color:#fff}
+.pbar{display:flex;gap:10px;align-items:center;padding:10px max(14px,env(safe-area-inset-right,0px)) 10px max(14px,env(safe-area-inset-left,0px));padding-top:max(10px,env(safe-area-inset-top,0px));background:#0b0f13}
+.pbar .t{flex:1;min-width:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pbar select{background:#222c36;color:#fff;border:1px solid #3a4856;border-radius:8px;padding:6px 8px;max-width:42vw}
+.pbar button{background:#222c36;color:#fff;border:1px solid #3a4856;border-radius:8px;padding:7px 12px}
+#vid{flex:1;min-height:0;width:100%;background:#000;object-fit:contain}
+.pmsg{padding:8px 16px;background:#0b0f13;color:#c9d2d9;font-size:13px}
+#toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:200;max-width:90vw;font-weight:500}
+/* rádio e TV */
+.lg{position:relative;border-radius:8px;background:var(--surface2);display:grid;place-items:center;overflow:hidden;font:800 20px var(--display);color:var(--muted)}
+.lg img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:4px;background:var(--surface2)}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.stn{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+.stn .lg{width:44px;height:44px;flex:none}
+.stn .info{flex:1;min-width:0}
+.stn .nm,.an{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stn .mt,.as{color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stn.on{border-color:var(--accent)}
+.stn .btn{flex:none;min-width:44px}
+.ibtn{flex:none;background:var(--surface2);border:0;border-radius:8px;width:40px;height:40px;font-size:16px;color:var(--muted)}
+.ibtn.on{background:var(--accent);color:var(--accent-fg)}
+.tvgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.ch{display:flex;flex-direction:column;align-items:stretch;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:left;min-width:0}
+.ch:hover{border-color:var(--accent)}
+.ch .lg{width:100%;height:64px}
+.ch .nm{display:block;font-weight:600;line-height:1.25;overflow-wrap:anywhere}
+.ch .mt{display:block;color:var(--muted);font-size:13px}
+.note{color:var(--muted);font-size:13px;margin:0 0 14px;max-width:70ch}
+#abar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surface);border-top:1px solid var(--line);display:grid;gap:8px;padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+#abar .arow{display:flex;gap:8px 12px;align-items:center;flex-wrap:wrap;min-width:0}
+#abar .grow{flex:1 1 220px;min-width:0}
+#abar .ctl{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#abar.live .nolive{display:none}
+#abar:not(.live) .an{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+#abar .seek{flex-wrap:nowrap}
+#abar .seek span{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:3.2em}
+#abar .seek span:last-child{text-align:right}
+#aseek{flex:1;min-width:0;accent-color:var(--accent)}
+#aspeed,#acast{width:auto;min-width:44px;padding:0 10px;font-size:14px;font-weight:600}
+.ibtn:disabled{opacity:.35;cursor:default}
+body.hasbar{padding-bottom:var(--abh,120px)}
+body.hasbar #toast{bottom:calc(var(--abh,120px) + 8px)}
+/* biblioteca, separadores, folhas de áudio */
+.card.seen .thumb::before,.card.later .thumb::before{position:absolute;top:7px;left:8px;z-index:1;font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px;background:rgba(0,0,0,.72);color:#fff}
+.card.seen .thumb::before{content:"Visto"}
+.card.later .thumb::before{content:"Ver depois"}
+.thumb.sq{aspect-ratio:1}
+.row .pcard{flex:0 0 min(160px,44vw)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.tabs button{background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:7px 14px;font-weight:600;color:var(--muted)}
+.tabs button[aria-pressed="true"]{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+.ah{display:flex;gap:16px;padding:18px 20px 6px;position:relative;align-items:flex-start}
+.acover{width:112px;height:112px;flex:none;border-radius:10px;overflow:hidden;background:var(--surface2);position:relative;display:grid;place-items:center;font:800 34px var(--display);color:var(--muted)}
+.acover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ainfo{flex:1;min-width:0;display:grid;gap:8px}
+.ainfo h2{font-size:22px;letter-spacing:-.01em;padding-right:36px;overflow-wrap:anywhere}
+.ah .x{top:12px;right:12px}
+.tlist{display:grid;gap:6px;max-height:48vh;overflow:auto}
+.trk{display:flex;gap:10px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+.trk.on{border-color:var(--accent)}
+.trk .info{flex:1;min-width:0}
+.trk .nm2{font-weight:600;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.trk .mt{color:var(--muted);font-size:13px}
+.lbl{font-size:13px;color:var(--muted)}
+#dnote{width:100%;background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;resize:vertical;font:inherit;color:inherit;margin-top:4px}
+.tvlist{margin:0;padding-left:1.1em;display:grid;gap:10px}
+body.tvmode{zoom:1.3}
+/* addons */
+.thumb.po{aspect-ratio:2/3}
+.row .adc{flex:0 0 min(150px,42vw)}
+.adform{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.adform input{flex:1 1 260px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 12px}
+.adrow{display:grid;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;min-width:0}
+.adrow.off{opacity:.65}
+.adrow .top2{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.adrow .info{flex:1 1 240px;min-width:0}
+.adrow .nm3{font-weight:600;overflow-wrap:anywhere}
+.adrow .mt{color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+.warn{background:var(--surface2);border:1px solid var(--gold);border-radius:8px;padding:10px 12px;font-size:14px}
+details.doc{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:20px 0}
+details.doc summary{cursor:pointer;font-weight:600}
+details.doc p{max-width:70ch}
+details.doc pre{overflow-x:auto;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:12.5px;line-height:1.45;margin:10px 0}
+.tbl{overflow-x:auto}
+details.doc table{border-collapse:collapse;width:100%;font-size:13.5px;margin:8px 0}
+details.doc td,details.doc th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+@media (max-width:480px){
+  .ah{flex-direction:column}.acover{width:96px;height:96px}
+  #abar .ctl{gap:4px}
+  #abar .ibtn{width:34px;height:36px;font-size:15px}
+  #abar #aspeed,#abar #acast{width:auto;min-width:40px;padding:0 6px;font-size:13px}
+  #abar .btn{padding:8px 10px}
+}
+footer{color:var(--muted);font-size:13px;padding-top:6px;padding-bottom:30px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="mark"></span>Cine Livre</div>
+    <nav id="nav" aria-label="Secções">
+      <button data-v="inicio">Início</button>
+      <button data-v="explorar">Explorar</button>
+      <button data-v="audio">Áudio</button>
+      <button data-v="podcasts">Podcasts</button>
+      <button data-v="radio">Rádio</button>
+      <button data-v="tv">TV</button>
+      <button data-v="favoritos">Biblioteca</button>
+      <button data-v="addons">Addons</button>
+      <button data-v="ficheiros">Os meus ficheiros</button>
+    </nav>
+    <form class="sform" id="hform" role="search">
+      <input id="hq" type="search" placeholder="Pesquisar filmes" aria-label="Pesquisar filmes">
+      <button class="btn" type="submit">Ir</button>
+    </form>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="v-inicio">
+    <div class="sec" id="cont-sec" hidden>
+      <h2>Continuar a ver</h2>
+      <div class="row" id="cont-row"></div>
+    </div>
+    <div class="sec" id="acont-sec" hidden>
+      <h2>Continuar a ouvir</h2>
+      <div class="row" id="acont-row"></div>
+    </div>
+    <div id="addon-rows"></div>
+    <div id="rows"></div>
+  </section>
+
+  <section id="v-explorar" hidden>
+    <div class="filters">
+      <input id="fq" type="search" placeholder="Título ou tema" aria-label="Título ou tema">
+      <select id="fcol" aria-label="Coleção"></select>
+      <select id="fdec" aria-label="Década">
+        <option value="">Todas as décadas</option>
+        <option value="1910">Anos 1910</option><option value="1920">Anos 1920</option><option value="1930">Anos 1930</option>
+        <option value="1940">Anos 1940</option><option value="1950">Anos 1950</option><option value="1960">Anos 1960</option>
+        <option value="1970">Anos 1970</option>
+      </select>
+      <select id="fsort" aria-label="Ordenar">
+        <option value="downloads desc">Mais vistos</option>
+        <option value="titleSorter asc">Título A–Z</option>
+        <option value="year asc">Mais antigos</option>
+        <option value="year desc">Mais recentes</option>
+      </select>
+    </div>
+    <div class="count" id="count"></div>
+    <div class="grid" id="results"></div>
+    <div style="text-align:center;margin-top:22px"><button class="btn ghost" id="more" hidden>Mostrar mais</button></div>
+  </section>
+
+  <section id="v-favoritos" hidden>
+    <div class="sec"><h2>Biblioteca</h2></div>
+    <div class="tabs" id="btabs">
+      <button type="button" data-t="fav" aria-pressed="true">Favoritos</button>
+      <button type="button" data-t="later" aria-pressed="false">Ver mais tarde</button>
+      <button type="button" data-t="hist" aria-pressed="false">Histórico</button>
+    </div>
+    <div class="grid" id="favgrid"></div>
+    <div class="acts" style="margin-top:24px">
+      <button class="btn ghost" id="hclear" type="button" hidden>Limpar histórico</button>
+      <button class="btn ghost" id="bexp" type="button">Guardar cópia das listas</button>
+      <button class="btn ghost" id="bimpb" type="button">Restaurar cópia</button>
+      <input type="file" id="bimp" accept="application/json,.json" hidden>
+    </div>
+    <p class="note" style="margin-top:10px">As listas ficam guardadas neste navegador. A cópia é um ficheiro que podes levar para outro aparelho.</p>
+  </section>
+
+  <section id="v-audio" hidden>
+    <div class="sec"><h2>Música e audiolivros</h2>
+      <p class="note">Audiolivros de domínio público do LibriVox, música Creative Commons dos netlabels e concertos que os próprios artistas autorizaram gravar (Live Music Archive). Tudo vem do Internet Archive.</p>
+    </div>
+    <div class="tabs" id="atabs">
+      <button type="button" data-t="book" aria-pressed="true">Audiolivros</button>
+      <button type="button" data-t="music" aria-pressed="false">Música</button>
+      <button type="button" data-t="live" aria-pressed="false">Concertos</button>
+    </div>
+    <div class="filters">
+      <input id="aq" type="search" placeholder="Título, autor ou tema" aria-label="Título, autor ou tema">
+      <select id="alang" aria-label="Língua"></select>
+      <select id="asort" aria-label="Ordenar">
+        <option value="downloads desc">Mais ouvidos</option>
+        <option value="titleSorter asc">Título A–Z</option>
+        <option value="addeddate desc">Mais recentes</option>
+      </select>
+    </div>
+    <div class="count" id="acount"></div>
+    <div class="grid" id="alist"></div>
+    <div style="text-align:center;margin-top:22px"><button class="btn ghost" id="amore" hidden>Mostrar mais</button></div>
+  </section>
+
+  <section id="v-podcasts" hidden>
+    <div class="sec"><h2>Podcasts</h2>
+      <p class="note">Catálogo do Apple Podcasts. Os episódios tocam a partir dos servidores de cada podcast e retomam onde paraste.</p>
+    </div>
+    <div class="sec" id="pfol-sec" hidden><h2>A seguir</h2><div class="row" id="pfol"></div></div>
+    <form class="filters" id="pform" role="search">
+      <input id="psrch" type="search" placeholder="Pesquisar podcasts" aria-label="Pesquisar podcasts">
+      <select id="pcc" aria-label="País"></select>
+      <button class="btn" type="submit">Pesquisar</button>
+    </form>
+    <div class="tabs" id="pchips"></div>
+    <div class="count" id="pcount"></div>
+    <div class="grid" id="pres"></div>
+  </section>
+
+  <section id="v-radio" hidden>
+    <div class="sec"><h2>Rádio</h2>
+      <p class="note">Estações do diretório aberto Radio Browser. Cada uma emite no seu próprio endereço público. A rádio continua a tocar enquanto navegas.</p>
+    </div>
+    <div class="filters">
+      <select id="rcc" aria-label="País"></select>
+      <input id="rq" type="search" placeholder="Nome da estação" aria-label="Nome da estação">
+    </div>
+    <div class="sgrid" id="rlist"></div>
+  </section>
+
+  <section id="v-tv" hidden>
+    <div class="sec"><h2>Canais oficiais gratuitos</h2>
+      <p class="note">Emissões que os próprios canais publicam de graça. Podem mudar de endereço ou não abrir em certos países.</p>
+      <div class="tvgrid" id="tvcur"></div>
+    </div>
+    <div class="sec"><h2>Canais por país</h2>
+      <p class="note">Lista pública do projeto iptv-org, com canais de emissão aberta na internet. Alguns só funcionam dentro do próprio país ou a certas horas.</p>
+      <div class="filters">
+        <select id="tcc" aria-label="País"></select>
+        <input id="tq" type="search" placeholder="Filtrar canais" aria-label="Filtrar canais">
+      </div>
+      <div class="tvgrid" id="tvlist"></div>
+    </div>
+  </section>
+
+  <section id="v-ficheiros" hidden>
+    <div class="sec"><h2>Os meus ficheiros</h2>
+      <p class="sub">Os vídeos ficam no teu aparelho e não são enviados para lado nenhum. Se a legenda (.srt ou .vtt) tiver o mesmo nome do vídeo, é ligada automaticamente.</p>
+    </div>
+    <div class="drop" id="drop">
+      <strong>Arrasta vídeos para aqui</strong>
+      <p>MP4, M4V, WebM, OGV e MOV costumam funcionar. MKV e AVI dependem do navegador.</p>
+      <input id="finput" type="file" accept="video/*,.mkv,.avi,.srt,.vtt" multiple hidden>
+      <button class="btn" id="fpick">Escolher ficheiros</button>
+    </div>
+    <div id="locals"></div>
+  </section>
+
+  <section id="v-addons" hidden>
+    <div class="sec"><h2>Addons</h2>
+      <p class="note">Um addon é uma lista de títulos com os endereços de vídeo ou áudio. Não corre código na app. Instala só addons de fontes em que confias e de conteúdo que tens direito de ver.</p>
+    </div>
+    <form class="adform" id="adform">
+      <input id="adurl" type="text" inputmode="url" placeholder="Endereço do addon, por exemplo https://…/manifest.json" aria-label="Endereço do addon" autocomplete="off">
+      <button class="btn" type="submit">Ver addon</button>
+    </form>
+    <div class="acts">
+      <button class="btn ghost" id="adfile" type="button">Escolher ficheiro .json</button>
+      <button class="btn ghost" id="adlv" type="button">Instalar LibriVox</button>
+      <button class="btn ghost" id="adsample" type="button">Instalar addon de exemplo</button>
+      <button class="btn ghost" id="adtpl" type="button">Descarregar modelo</button>
+      <input type="file" id="adfinput" accept="application/json,.json" hidden>
+    </div>
+    <div class="count" id="adstat" role="status" style="margin-top:10px"></div>
+    <div id="adlist" style="margin-top:8px"></div>
+    <details class="doc">
+      <summary>Como criar um addon</summary>
+      <p>Um addon é um ficheiro JSON. Podes guardá-lo num alojamento gratuito (por exemplo o GitHub Pages) ou escolhê-lo diretamente neste aparelho. Se o ficheiro estiver num endereço, esse servidor tem de aceitar pedidos de outros sites (CORS).</p>
+      <pre>{
+  "id": "o-meu.addon",
+  "name": "A minha lista",
+  "version": "1.0.0",
+  "author": "O teu nome",
+  "description": "Filmes do meu servidor.",
+  "catalogs": [
+    {
+      "id": "filmes",
+      "name": "Filmes",
+      "kind": "video",
+      "items": [
+        {
+          "id": "f1",
+          "title": "Um filme",
+          "year": "1999",
+          "poster": "https://…/capa.jpg",
+          "description": "Sinopse curta.",
+          "streams": [{ "label": "720p", "url": "https://…/filme.mp4" }],
+          "subtitles": [{ "label": "Português", "url": "https://…/pt.vtt" }]
+        }
+      ]
+    },
+    { "id": "mais", "name": "Lista grande", "url": "https://…/catalogo.json" }
+  ]
+}</pre>
+      <div class="tbl"><table>
+        <tr><th>Campo</th><th>Obrigatório</th><th>Para quê</th></tr>
+        <tr><td>id</td><td>sim</td><td>Nome único do addon: 3 a 64 letras, números, pontos ou hífenes.</td></tr>
+        <tr><td>name</td><td>sim</td><td>Nome que aparece na app.</td></tr>
+        <tr><td>catalogs</td><td>sim</td><td>Até 30 catálogos. Cada um tem "items" (títulos escritos no ficheiro) ou "url" (endereço de uma lista).</td></tr>
+        <tr><td>kind</td><td>não</td><td>"video" (por defeito), "audio" ou "live" (emissão em direto).</td></tr>
+        <tr><td>title, streams</td><td>sim, em cada título</td><td>Nome e endereços do vídeo ou áudio. MP4, WebM e HLS (.m3u8) para vídeo. MP3, AAC e OGG para áudio.</td></tr>
+        <tr><td>episodes</td><td>não</td><td>Para séries e álbuns, em vez de "streams": uma lista de { "title", "streams" }.</td></tr>
+        <tr><td>poster, year, description, subtitles</td><td>não</td><td>Capa, ano, sinopse e legendas (.vtt ou .srt).</td></tr>
+      </table></div>
+      <p>Uma lista num endereço pode ser { "items": [ … ] } ou só a lista. Cada catálogo mostra até 500 títulos. Só são aceites endereços que comecem por http:// ou https://.</p>
+    </details>
+  </section>
+</main>
+
+<footer class="wrap">
+  <div>Filmes, audiolivros e música: Internet Archive (LibriVox, netlabels, Live Music Archive). Podcasts: catálogo do Apple Podcasts. Rádio: diretório Radio Browser. TV: canais oficiais gratuitos e lista iptv-org. O estado dos direitos varia de país para país.</div>
+  <div class="acts" style="margin-top:12px"><button class="btn ghost" id="tvhelp" type="button">Ver na TV</button></div>
+</footer>
+
+<dialog id="dlg" aria-labelledby="dtitle">
+  <div class="dh"><img id="dimg" alt=""><button class="x" id="dclose" aria-label="Fechar">✕</button></div>
+  <div class="db">
+    <h2 id="dtitle"></h2>
+    <div class="meta" id="dmeta"></div>
+    <div class="desc" id="ddesc">A carregar detalhes…</div>
+    <div class="acts">
+      <button class="btn" id="dplay" disabled>Ver agora</button>
+      <button class="btn ghost" id="dfav">Adicionar aos favoritos</button>
+      <button class="btn ghost" id="dlater">Ver mais tarde</button>
+      <button class="btn ghost" id="dseen">Marcar como visto</button>
+      <select id="dq" aria-label="Qualidade" hidden></select>
+    </div>
+    <div>
+      <label class="lbl" for="dnote">As tuas notas</label>
+      <textarea id="dnote" rows="2" placeholder="Escreve uma nota sobre este título"></textarea>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="adlg" aria-labelledby="atitle">
+  <div class="ah">
+    <div class="acover"><span id="acph"></span><img id="acov" alt="" referrerpolicy="no-referrer"></div>
+    <div class="ainfo">
+      <h2 id="atitle"></h2>
+      <div class="meta" id="asub"></div>
+      <div class="acts">
+        <button class="btn" id="aplayall" type="button" disabled>Ouvir</button>
+        <button class="btn ghost" id="afollow" type="button" hidden>Seguir</button>
+        <button class="btn ghost" id="aorder" type="button" hidden>Inverter ordem</button>
+      </div>
+    </div>
+    <button class="x" id="aclose" type="button" aria-label="Fechar">✕</button>
+  </div>
+  <div class="db">
+    <div class="desc" id="adesc" hidden></div>
+    <div class="tlist" id="atracks"></div>
+  </div>
+</dialog>
+
+<dialog id="tvdlg" aria-labelledby="tvdt">
+  <div class="db">
+    <h2 id="tvdt">Ver na TV</h2>
+    <ul class="tvlist">
+      <li><strong>Botão TV no leitor.</strong> Envia o filme, o canal ou o áudio para uma TV ou Chromecast ligados ao mesmo Wi-Fi. O Chrome usa Chromecast e recetores compatíveis. O Safari usa AirPlay.</li>
+      <li><strong>Se a TV não aparecer.</strong> No Chrome, abre o menu ⋮ e escolhe Transmitir. No Android, tenta Transmitir ou Smart View nas definições rápidas.</li>
+      <li><strong>Ficheiros do teu aparelho e canais abertos pelo leitor da app.</strong> O botão não os consegue enviar. Transmite o separador do navegador ou o ecrã inteiro.</li>
+      <li><strong>TV com navegador.</strong> Abre a app lá e usa as setas e o OK do comando. O modo TV aumenta letras e botões.</li>
+      <li><strong>Hisense.</strong> O que a tua TV aceita (Chromecast integrado, AirPlay, Miracast ou nenhum) depende do modelo. Confirma nas definições da TV.</li>
+    </ul>
+    <div class="acts">
+      <button class="btn" id="tvmode" type="button">Ativar modo TV</button>
+      <button class="btn ghost" id="tvclose" type="button">Fechar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="adndlg" aria-labelledby="adnt">
+  <div class="db">
+    <h2 id="adnt">Instalar addon</h2>
+    <div class="meta" id="adnmeta"></div>
+    <div class="desc" id="adndesc"></div>
+    <div class="meta" id="adncats"></div>
+    <div class="warn">O Cine Livre não verifica os direitos do conteúdo de um addon. Instala só addons de fontes em que confias e de conteúdo que tens direito de ver.</div>
+    <div class="acts">
+      <button class="btn" id="adnok" type="button">Instalar</button>
+      <button class="btn ghost" id="adncancel" type="button">Cancelar</button>
+    </div>
+  </div>
+</dialog>
+
+<div id="player" hidden>
+  <div class="pbar">
+    <button id="pback">← Voltar</button>
+    <div class="t" id="ptitle"></div>
+    <select id="pq" aria-label="Qualidade" hidden></select>
+    <button id="ptv" aria-label="Enviar para a TV">TV</button>
+    <button id="pfs" aria-label="Ecrã inteiro">⛶</button>
+  </div>
+  <video id="vid" controls playsinline preload="metadata"></video>
+  <div class="pmsg" id="pmsg" hidden></div>
+</div>
+<div id="abar" hidden>
+  <div class="arow">
+    <div class="grow"><div class="an" id="aname" role="button" tabindex="0" title="Abrir a lista"></div><div class="as" id="astat"></div></div>
+    <div class="ctl">
+      <button class="ibtn nolive" id="aprev" type="button" aria-label="Anterior">«</button>
+      <button class="ibtn nolive" id="aback" type="button" aria-label="Recuar 15 segundos">−15</button>
+      <button class="btn" id="app" type="button" aria-label="Pausar ou retomar">❚❚</button>
+      <button class="ibtn nolive" id="afwd" type="button" aria-label="Avançar 30 segundos">+30</button>
+      <button class="ibtn nolive" id="anext" type="button" aria-label="Seguinte">»</button>
+      <button class="ibtn nolive" id="aspeed" type="button" aria-label="Velocidade">1×</button>
+      <button class="ibtn" id="acast" type="button" aria-label="Enviar para a TV">TV</button>
+      <button class="btn ghost" id="astop" type="button" aria-label="Parar">✕</button>
+    </div>
+  </div>
+  <div class="arow seek nolive"><span id="atime">0:00</span><input type="range" id="aseek" min="0" max="1000" value="0" step="1" aria-label="Posição"><span id="adur">--:--</span></div>
+</div>
+<audio id="aud" preload="none"></audio>
+<div id="toast" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.17/hls.min.js"></script>
+<script>
+(function(){
+'use strict';
+const _f=window.fetch.bind(window);
+function fetch(u,o){
+  o=o?{...o}:{};
+  const ms=o.timeout==null?20000:o.timeout;
+  delete o.timeout;
+  if(!o.signal&&ms>0&&window.AbortSignal&&AbortSignal.timeout)o.signal=AbortSignal.timeout(ms);
+  return _f(u,o);
+}
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const first=v=>Array.isArray(v)?v[0]:v;
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+let favs=store.get('cl_favs',{});
+let progress=store.get('cl_prog',{});
+let later=store.get('cl_later',{});
+let seen=store.get('cl_seen',{});
+let hist=store.get('cl_hist',[]);
+if(!Array.isArray(hist))hist=[];
+let notes=store.get('cl_notes',{});
+const known=new Map();
+const metaCache=new Map();
+
+/* ---------- catálogo ---------- */
+const CATS=[
+  {nome:'Clássicos do cinema',col:'feature_films'},
+  {nome:'Cinema mudo',col:'silent_films'},
+  {nome:'Ficção científica e terror',col:'SciFi_Horror'},
+  {nome:'Comédia',col:'Comedy_Films'},
+  {nome:'Film noir',col:'film_noir'},
+  {nome:'Animação clássica',col:'animationandcartoons'}
+];
+const ALLCOLS='collection:('+CATS.map(c=>c.col).join(' OR ')+')';
+const thumbUrl=id=>'https://archive.org/services/img/'+encodeURIComponent(id);
+
+async function search(q,{rows=24,page=1,sort='downloads desc'}={}){
+  const p=new URLSearchParams();
+  p.set('q',q);
+  ['identifier','title','year','creator'].forEach(f=>p.append('fl[]',f));
+  p.set('rows',rows);p.set('page',page);p.set('output','json');p.append('sort[]',sort);
+  const r=await fetch('https://archive.org/advancedsearch.php?'+p.toString());
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  const j=await r.json();
+  return {total:j.response.numFound,docs:j.response.docs.map(d=>({id:d.identifier,title:first(d.title)||d.identifier,year:first(d.year)||'',creator:first(d.creator)||''}))};
+}
+async function getMeta(id){
+  if(metaCache.has(id))return metaCache.get(id);
+  const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  const j=await r.json();metaCache.set(id,j);return j;
+}
+const fileUrl=(id,name)=>'https://archive.org/download/'+encodeURIComponent(id)+'/'+name.split('/').map(encodeURIComponent).join('/');
+
+/* ---------- cartões ---------- */
+function card(m,pct,local){
+  known.set(m.id,m);
+  const fav=(favs[m.id]?' fav':'')+(seen[m.id]?' seen':'')+(later[m.id]&&!seen[m.id]?' later':'');
+  const bar=pct?'<span class="bar"><i style="width:'+Math.min(100,pct)+'%"></i></span>':'';
+  const img=local?'':'<img src="'+thumbUrl(m.id)+'" alt="" loading="lazy" onerror="this.remove()">';
+  return '<button class="card'+fav+'" data-id="'+esc(m.id)+'"'+(local?' data-local="1"':'')+'>'
+    +'<span class="thumb" style="display:block"><span class="ph">'+esc((m.title||'?').trim().charAt(0).toUpperCase())+'</span>'+img+bar+'</span>'
+    +'<span class="ct" style="display:-webkit-box">'+esc(m.title)+'</span>'
+    +'<span class="cy" style="display:block">'+(local?'Ficheiro local':esc(m.year))+'</span></button>';
+}
+const skels=n=>Array.from({length:n},()=>'<div class="card skel" style="cursor:default"><span class="thumb" style="display:block"></span><span class="ct" style="display:block">&nbsp;</span></div>').join('');
+function refreshHearts(){$$('.card[data-id]').forEach(c=>{const id=c.dataset.id;c.classList.toggle('fav',!!favs[id]);c.classList.toggle('seen',!!seen[id]);c.classList.toggle('later',!!later[id]&&!seen[id])})}
+
+/* ---------- navegação ---------- */
+const VIEWS=['inicio','explorar','audio','podcasts','radio','tv','favoritos','addons','ficheiros'];
+function route(){
+  let v=(location.hash||'').slice(1);if(!VIEWS.includes(v))v='inicio';
+  VIEWS.forEach(n=>{$('#v-'+n).hidden=n!==v});
+  $$('#nav button').forEach(b=>{if(b.dataset.v===v)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+  if(v==='inicio')renderHome();
+  if(v==='explorar')initExplore();
+  if(v==='favoritos')renderFavs();
+  if(v==='ficheiros')renderLocals();
+  if(v==='radio')initRadio();
+  if(v==='tv')initTv();
+  if(v==='audio')initAudioTab();
+  if(v==='podcasts')initPodcasts();
+  if(v==='addons')renderAddons();
+  window.scrollTo(0,0);
+}
+function go(v){if(location.hash==='#'+v)route();else location.hash=v}
+$('#nav').addEventListener('click',e=>{const b=e.target.closest('button');if(b)go(b.dataset.v)});
+window.addEventListener('hashchange',route);
+
+/* ---------- início ---------- */
+let rowsBuilt=false;
+function renderCont(){
+  const items=Object.values(progress).sort((a,b)=>b.ts-a.ts).slice(0,14);
+  $('#cont-sec').hidden=!items.length;
+  $('#cont-row').innerHTML=items.map(p=>p.addon?vcard(p):card({id:p.local?p.key:p.id,title:p.title,year:p.year},p.d?p.t/p.d*100:0,p.local)).join('');
+}
+function renderHome(){
+  renderCont();renderACont();renderAddonRows();
+  if(rowsBuilt)return;rowsBuilt=true;
+  $('#rows').innerHTML=CATS.map((c,i)=>'<div class="sec"><h2>'+esc(c.nome)+'</h2><div class="row" id="row'+i+'">'+skels(7)+'</div></div>').join('');
+  CATS.forEach((c,i)=>loadRow(c,i));
+}
+async function loadRow(c,i){
+  const el=$('#row'+i);
+  try{
+    const r=await search('mediatype:movies AND collection:'+c.col,{rows:20});
+    el.innerHTML=r.docs.map(m=>card(m)).join('')||'<div class="empty">Sem resultados.</div>';
+  }catch(e){
+    el.innerHTML='<div class="err">Não foi possível carregar esta lista. Verifica a ligação à internet. <button class="btn ghost" data-retry="'+i+'">Tentar de novo</button></div>';
+  }
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-retry]');if(b){const i=+b.dataset.retry;$('#row'+i).innerHTML=skels(7);loadRow(CATS[i],i)}});
+
+/* ---------- explorar ---------- */
+const S={q:'',col:'',dec:'',sort:'downloads desc',page:1,total:0,busy:false,ready:false};
+function initExplore(){
+  if(!S.ready){
+    S.ready=true;
+    $('#fcol').innerHTML='<option value="">Todas as coleções</option><option value="*addons">Os meus addons</option>'+CATS.map(c=>'<option value="'+c.col+'">'+esc(c.nome)+'</option>').join('');
+    let t;
+    $('#fq').addEventListener('input',()=>{clearTimeout(t);t=setTimeout(()=>{S.q=$('#fq').value;runSearch(true)},350)});
+    ['fcol','fdec','fsort'].forEach(id=>$('#'+id).addEventListener('change',()=>{S.col=$('#fcol').value;S.dec=$('#fdec').value;S.sort=$('#fsort').value;runSearch(true)}));
+    $('#more').addEventListener('click',()=>runSearch(false));
+    runSearch(true);
+  }else if($('#fq').value!==S.q){$('#fq').value=S.q;runSearch(true)}
+}
+function buildQ(){
+  const p=['mediatype:movies',S.col?'collection:'+S.col:ALLCOLS];
+  const t=S.q.trim().replace(/["\\()\[\]:{}^~*?!+\-]/g,' ').replace(/\s+/g,' ').trim();
+  if(t)p.push('(title:('+t+') OR subject:('+t+'))');
+  if(S.dec)p.push('year:['+S.dec+' TO '+(+S.dec+9)+']');
+  return p.join(' AND ');
+}
+async function runSearch(reset){
+  if(S.col==='*addons'){await runAddonSearch();return}
+  if(S.busy)return;S.busy=true;
+  if(reset){S.page=1;$('#results').innerHTML=skels(12);$('#count').textContent='A pesquisar…';$('#more').hidden=true}
+  else S.page++;
+  try{
+    const r=await search(buildQ(),{rows:30,page:S.page,sort:S.sort});
+    S.total=r.total;
+    if(S.col==='*addons'){S.busy=false;return}
+    const html=r.docs.map(m=>card(m)).join('');
+    if(reset)$('#results').innerHTML=html||'<div class="empty" style="grid-column:1/-1">Nada encontrado. Experimenta outro título ou retira um filtro.</div>';
+    else $('#results').insertAdjacentHTML('beforeend',html);
+    const shown=$$('#results .card').length;
+    $('#count').textContent=S.total?S.total.toLocaleString('pt-PT')+' títulos':'';
+    $('#more').hidden=shown>=S.total||!r.docs.length;
+  }catch(e){
+    if(!reset)S.page--;
+    $('#results').innerHTML=reset?'<div class="err" style="grid-column:1/-1">Não foi possível pesquisar agora. Verifica a ligação à internet.</div>':$('#results').innerHTML;
+    $('#count').textContent='';
+  }
+  S.busy=false;
+}
+$('#hform').addEventListener('submit',e=>{
+  e.preventDefault();S.q=$('#hq').value;$('#fq').value=S.q;
+  if(location.hash==='#explorar'){S.ready?runSearch(true):initExplore()}else go('explorar');
+});
+
+/* ---------- favoritos ---------- */
+let btab='fav';
+function renderFavs(){
+  $$('#btabs button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.t===btab)));
+  let items,msg;
+  if(btab==='later'){items=Object.values(later).sort((a,b)=>b.added-a.added);msg='A lista está vazia. Abre um filme e escolhe “Ver mais tarde”.'}
+  else if(btab==='hist'){items=hist.slice();msg='Ainda não viste nada. Os filmes que abrires no leitor aparecem aqui.'}
+  else{items=Object.values(favs).sort((a,b)=>b.added-a.added);msg='Ainda não tens favoritos. Abre um filme e escolhe “Adicionar aos favoritos”.'}
+  $('#favgrid').innerHTML=items.length?items.map(m=>card(m)).join(''):'<div class="empty" style="grid-column:1/-1">'+msg+'</div>';
+  $('#hclear').hidden=btab!=='hist'||!hist.length;
+}
+
+/* ---------- detalhe ---------- */
+const dlg=$('#dlg');
+let cur=null,curSrc=[],curSubs=[];
+async function openDetail(id){
+  const m=known.get(id)||{id,title:id,year:''};
+  cur=m;curSrc=[];curSubs=[];
+  $('#dimg').src=thumbUrl(id);
+  $('#dtitle').textContent=m.title;
+  $('#dmeta').textContent=m.year||'';
+  $('#ddesc').textContent='A carregar detalhes…';
+  $('#dplay').disabled=true;$('#dq').hidden=true;
+  updFavBtn();
+  $('#dnote').value=notes[id]||'';
+  if(!dlg.open)dlg.showModal();
+  $('#dplay').focus();
+  try{
+    const j=await getMeta(id);
+    if(!cur||cur.id!==id)return;
+    const md=j.metadata||{};
+    const d=new DOMParser().parseFromString('<div>'+(first(md.description)||'')+'</div>','text/html').body.textContent.trim().replace(/\s+/g,' ');
+    $('#ddesc').textContent=d?(d.length>700?d.slice(0,700)+'…':d):'Sem sinopse disponível.';
+    const bits=[first(md.year)||m.year,first(md.creator),first(md.runtime)].filter(Boolean);
+    $('#dmeta').textContent=bits.join(' · ');
+    const files=(j.files||[]).filter(f=>/\.(mp4|m4v|webm|ogv)$/i.test(f.name)&&!/_(thumb|small)\./i.test(f.name));
+    const rank=f=>/h\.264/i.test(f.format||'')?0:/\.mp4$/i.test(f.name)?1:/\.webm$/i.test(f.name)?2:3;
+    files.sort((a,b)=>rank(a)-rank(b)||(+a.size||0)-(+b.size||0));
+    curSrc=files.slice(0,6).map(f=>({label:(f.format||f.name.split('.').pop().toUpperCase())+' · '+(f.size?Math.round(f.size/1048576)+' MB':'?'),url:fileUrl(id,f.name)}));
+    curSubs=(j.files||[]).filter(f=>/\.(vtt|srt)$/i.test(f.name)).slice(0,6).map(f=>({label:f.name.replace(/\.[^.]+$/,''),url:fileUrl(id,f.name)}));
+    if(curSrc.length){
+      $('#dplay').disabled=false;
+      if(curSrc.length>1){$('#dq').innerHTML=curSrc.map((s,i)=>'<option value="'+i+'">'+esc(s.label)+'</option>').join('');$('#dq').hidden=false}
+    }else{
+      $('#ddesc').textContent+='\n\nEste título não tem um ficheiro de vídeo que o navegador consiga abrir. Podes vê-lo em archive.org/details/'+id;
+    }
+  }catch(e){$('#ddesc').textContent='Não foi possível carregar os detalhes. Verifica a ligação à internet.'}
+}
+function updFavBtn(){
+  if(!cur)return;
+  $('#dfav').textContent=favs[cur.id]?'Remover dos favoritos':'Adicionar aos favoritos';
+  $('#dlater').textContent=later[cur.id]?'Tirar de ver mais tarde':'Ver mais tarde';
+  $('#dseen').textContent=seen[cur.id]?'Desmarcar como visto':'Marcar como visto';
+}
+$('#dfav').addEventListener('click',()=>{
+  if(!cur)return;
+  if(favs[cur.id])delete favs[cur.id];else favs[cur.id]={id:cur.id,title:cur.title,year:cur.year,added:Date.now()};
+  store.set('cl_favs',favs);updFavBtn();refreshHearts();
+  if(location.hash==='#favoritos')renderFavs();
+});
+$('#dlater').addEventListener('click',()=>{
+  if(!cur)return;
+  if(later[cur.id])delete later[cur.id];else later[cur.id]={id:cur.id,title:cur.title,year:cur.year,added:Date.now()};
+  store.set('cl_later',later);updFavBtn();refreshHearts();
+  if(location.hash==='#favoritos')renderFavs();
+});
+$('#dseen').addEventListener('click',()=>{
+  if(!cur)return;
+  if(seen[cur.id])delete seen[cur.id];
+  else{seen[cur.id]=Date.now();if(later[cur.id]){delete later[cur.id];store.set('cl_later',later)}}
+  store.set('cl_seen',seen);updFavBtn();refreshHearts();
+  if(location.hash==='#favoritos')renderFavs();
+});
+let nt;
+$('#dnote').addEventListener('input',()=>{
+  if(!cur)return;
+  const id=cur.id,v=$('#dnote').value.trim();
+  clearTimeout(nt);
+  nt=setTimeout(()=>{if(v)notes[id]=v;else delete notes[id];store.set('cl_notes',notes)},400);
+});
+$('#dclose').addEventListener('click',()=>dlg.close());
+dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
+$('#dplay').addEventListener('click',()=>{
+  if(!cur||!curSrc.length)return;
+  const i=+($('#dq').hidden?0:$('#dq').value);
+  const m=cur,src=curSrc,subs=curSubs;
+  dlg.close();
+  openPlayer({key:m.id,id:m.id,title:m.title,year:m.year,sources:src,subs:subs,start:i});
+});
+
+/* ---------- leitor ---------- */
+const player=$('#player'),vid=$('#vid');
+let P=null,lastSave=0,trackUrls=[];
+function decode(buf){
+  try{return new TextDecoder('utf-8',{fatal:true}).decode(buf)}
+  catch(e){return new TextDecoder('windows-1252').decode(buf)}
+}
+function toVtt(text,name){
+  if(/\.vtt$/i.test(name||'')||/^\uFEFF?WEBVTT/.test(text))return text.replace(/^\uFEFF/,'');
+  return 'WEBVTT\n\n'+text.replace(/^\uFEFF/,'').replace(/\r+/g,'').replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g,'$1.$2');
+}
+function clearTracks(){
+  $$('track',vid).forEach(t=>t.remove());
+  trackUrls.forEach(u=>URL.revokeObjectURL(u));trackUrls=[];
+}
+async function addTrack(sub,idx,token){
+  try{
+    let buf;
+    if(sub.file)buf=await sub.file.arrayBuffer();
+    else{const r=await fetch(sub.url);if(!r.ok)return;buf=await r.arrayBuffer()}
+    if(!P||P.token!==token)return;
+    const url=URL.createObjectURL(new Blob([toVtt(decode(buf),sub.label+(sub.ext||'')) ],{type:'text/vtt'}));
+    trackUrls.push(url);
+    const t=document.createElement('track');
+    t.kind='subtitles';t.label=sub.label;t.src=url;
+    if(/(^|[^a-z])(pt|por|portug)/i.test(sub.label))t.default=true;
+    vid.appendChild(t);
+  }catch(e){}
+}
+function openPlayer(o){
+  const token=Date.now();
+  P={...o,token,idx:o.start||0,pending:null};
+  $('#ptitle').textContent=o.title;
+  if(!o.live&&!o.local&&o.id)addHist(o);
+  $('#pmsg').hidden=true;
+  const q=$('#pq');
+  if(o.sources.length>1){q.innerHTML=o.sources.map((s,i)=>'<option value="'+i+'">'+esc(s.label)+'</option>').join('');q.value=P.idx;q.hidden=false}else q.hidden=true;
+  clearTracks();
+  (o.subs||[]).forEach((s,i)=>addTrack(s,i,token));
+  const saved=o.live?null:progress[o.key];
+  P.pending=saved&&saved.t>8?saved.t:0;
+  if(!aud.paused)aud.pause();
+  attach(vid,o.sources[P.idx].url);
+  player.hidden=false;document.body.style.overflow='hidden';
+  vid.play().catch(()=>{});
+  vid.focus();
+}
+function closePlayer(){
+  if(!P)return;
+  saveProgress(true);
+  detach(vid);clearTracks();
+  player.hidden=true;document.body.style.overflow='';
+  if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
+  P=null;renderCont();
+}
+function saveProgress(force){
+  if(!P||P.live||!vid.duration||!isFinite(vid.duration))return;
+  const now=Date.now();if(!force&&now-lastSave<4000)return;lastSave=now;
+  if(vid.currentTime/vid.duration>0.95){delete progress[P.key];markSeen(P)}
+  else if(vid.currentTime>5){progress[P.key]={key:P.key,id:P.id,title:P.title,year:P.year,t:vid.currentTime,d:vid.duration,ts:now,local:!!P.local,...(P.keep||{})}}
+  store.set('cl_prog',progress);
+}
+vid.addEventListener('loadedmetadata',()=>{if(P&&P.pending&&P.pending<vid.duration-10){vid.currentTime=P.pending}P&&(P.pending=0)});
+vid.addEventListener('timeupdate',()=>saveProgress(false));
+vid.addEventListener('pause',()=>saveProgress(true));
+vid.addEventListener('ended',()=>{if(P){delete progress[P.key];store.set('cl_prog',progress);markSeen(P)}});
+vid.addEventListener('error',()=>{
+  const m=$('#pmsg');m.hidden=false;
+  m.textContent=P&&P.live?'Este canal não está a responder agora. Alguns só funcionam em certos países ou a certas horas.':P&&P.sources.length>1?'Este formato não abriu. Escolhe outra qualidade na lista acima.':'O navegador não consegue reproduzir este ficheiro. Tenta converter para MP4 (H.264) ou usa outro navegador.';
+});
+$('#pq').addEventListener('change',()=>{
+  if(!P)return;const t=vid.currentTime;P.idx=+$('#pq').value;P.pending=t;$('#pmsg').hidden=true;
+  attach(vid,P.sources[P.idx].url);vid.play().catch(()=>{});
+});
+$('#pback').addEventListener('click',closePlayer);
+$('#pfs').addEventListener('click',()=>{
+  if(document.fullscreenElement)document.exitFullscreen();
+  else(player.requestFullscreen||vid.webkitEnterFullscreen||function(){}).call(player);
+});
+window.addEventListener('pagehide',()=>saveProgress(true));
+
+document.addEventListener('keydown',e=>{
+  const tag=e.target.tagName;
+  if(!player.hidden){
+    if(e.key==='Escape'){if(!document.fullscreenElement)closePlayer();return}
+    if(tag==='SELECT'||tag==='INPUT')return;
+    if(e.key===' '||e.key==='k'){e.preventDefault();vid.paused?vid.play():vid.pause()}
+    else if(e.key==='ArrowRight'){e.preventDefault();vid.currentTime+=10}
+    else if(e.key==='ArrowLeft'){e.preventDefault();vid.currentTime-=10}
+    else if(e.key==='ArrowUp'){e.preventDefault();vid.volume=Math.min(1,vid.volume+.1)}
+    else if(e.key==='ArrowDown'){e.preventDefault();vid.volume=Math.max(0,vid.volume-.1)}
+    else if(e.key==='f'){$('#pfs').click()}
+    else if(e.key==='m'){vid.muted=!vid.muted}
+    return;
+  }
+  /* navegação por setas (comando da TV) */
+  if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return;
+  if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA')return;
+  const scope=[dlg,adlg,tvdlg,adndlg].find(d=>d.open)||document;
+  const items=$$('button,[href],input:not([type=hidden]),select',scope).filter(el=>!el.disabled&&el.offsetParent!==null&&el.getClientRects().length);
+  if(!items.length)return;
+  const a=document.activeElement;
+  if(!a||!items.includes(a)){e.preventDefault();items[0].focus();return}
+  const r=a.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+  let best=null,bs=1e9;
+  items.forEach(el=>{
+    if(el===a)return;
+    const b=el.getBoundingClientRect(),x=b.left+b.width/2-cx,y=b.top+b.height/2-cy;
+    let main,cross;
+    if(e.key==='ArrowRight'){main=x;cross=y}else if(e.key==='ArrowLeft'){main=-x;cross=y}
+    else if(e.key==='ArrowDown'){main=y;cross=x}else{main=-y;cross=x}
+    if(main<=2)return;
+    const s=main+Math.abs(cross)*2.5;
+    if(s<bs){bs=s;best=el}
+  });
+  if(best){e.preventDefault();best.focus();best.scrollIntoView({block:'nearest',inline:'nearest'})}
+});
+
+/* ---------- ficheiros locais ---------- */
+let locals=[];
+const VID_RE=/\.(mp4|m4v|webm|ogv|mov|mkv|avi)$/i;
+function fmtSize(b){return b>1e9?(b/1e9).toFixed(1)+' GB':Math.round(b/1048576)+' MB'}
+function addFiles(list){
+  const files=[...list];
+  const vids=files.filter(f=>/^video\//.test(f.type)||VID_RE.test(f.name));
+  const subs=files.filter(f=>/\.(srt|vtt)$/i.test(f.name));
+  if(!vids.length){toast(subs.length?'Escolhe também o vídeo a que a legenda pertence.':'Nenhum vídeo encontrado nos ficheiros escolhidos.');return}
+  vids.forEach(v=>{
+    const key='local:'+v.name+':'+v.size;
+    if(locals.some(l=>l.key===key))return;
+    const base=v.name.replace(/\.[^.]+$/,'').toLowerCase();
+    let s=subs.filter(x=>x.name.toLowerCase().startsWith(base));
+    if(!s.length&&vids.length===1)s=subs;
+    locals.push({key,name:v.name,size:v.size,url:URL.createObjectURL(v),subs:s.map(x=>({label:x.name.replace(/\.[^.]+$/,''),file:x,ext:x.name.match(/\.[^.]+$/)[0]}))});
+  });
+  renderLocals();
+}
+function renderLocals(){
+  $('#locals').innerHTML=locals.length?locals.map((l,i)=>{
+    const p=progress[l.key];
+    return '<div class="lrow"><div class="nm"><strong>'+esc(l.name)+'</strong><small>'+fmtSize(l.size)+(l.subs.length?' · '+l.subs.length+' legenda'+(l.subs.length>1?'s':''):'')+(p&&p.d?' · '+Math.round(p.t/p.d*100)+'% visto':'')+'</small></div>'
+      +'<button class="btn" data-play="'+i+'">Ver</button><button class="btn ghost" data-rm="'+i+'" aria-label="Retirar">✕</button></div>';
+  }).join(''):'<div class="empty">Ainda não escolheste nenhum ficheiro.</div>';
+}
+$('#locals').addEventListener('click',e=>{
+  const p=e.target.closest('[data-play]'),r=e.target.closest('[data-rm]');
+  if(p){const l=locals[+p.dataset.play];openPlayer({key:l.key,id:l.key,local:true,title:l.name.replace(/\.[^.]+$/,''),year:'',sources:[{label:'Ficheiro',url:l.url}],subs:l.subs,start:0})}
+  if(r){const l=locals.splice(+r.dataset.rm,1)[0];URL.revokeObjectURL(l.url);renderLocals()}
+});
+$('#fpick').addEventListener('click',()=>$('#finput').click());
+$('#finput').addEventListener('change',e=>{addFiles(e.target.files);e.target.value=''});
+const drop=$('#drop');
+['dragover','dragenter'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add('over')}));
+['dragleave','drop'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove('over')}));
+drop.addEventListener('drop',e=>{if(e.dataTransfer&&e.dataTransfer.files.length)addFiles(e.dataTransfer.files)});
+
+/* ---------- fontes HLS ---------- */
+const hlsRef=new WeakMap();
+function attach(el,url){
+  const old=hlsRef.get(el);if(old){old.destroy();hlsRef.delete(el)}
+  const isHls=/\.m3u8(\?|$)/i.test(url);
+  if(isHls&&!el.canPlayType('application/vnd.apple.mpegurl')&&window.Hls&&window.Hls.isSupported()){
+    const h=new window.Hls();hlsRef.set(el,h);
+    h.loadSource(url);h.attachMedia(el);
+    h.on(window.Hls.Events.ERROR,(ev,d)=>{if(d&&d.fatal)el.dispatchEvent(new Event('error'))});
+  }else el.src=url;
+}
+function detach(el){
+  const old=hlsRef.get(el);if(old){old.destroy();hlsRef.delete(el)}
+  el.pause();el.removeAttribute('src');el.load();
+}
+
+/* ---------- rádio ---------- */
+const aud=$('#aud');
+const RB=['https://de1.api.radio-browser.info','https://nl1.api.radio-browser.info','https://at1.api.radio-browser.info'];
+async function rb(path){
+  let last;
+  for(const h of RB){
+    try{const r=await fetch(h+path);if(r.ok)return await r.json()}catch(e){last=e}
+  }
+  throw last||new Error('rb');
+}
+const RC=[['AO','Angola'],['PT','Portugal'],['BR','Brasil'],['MZ','Moçambique'],['CV','Cabo Verde'],['GW','Guiné-Bissau'],['ST','São Tomé e Príncipe'],['ZA','África do Sul'],['FR','França'],['GB','Reino Unido'],['US','Estados Unidos']];
+let rfavs=store.get('cl_rfav',{});
+const R={ready:false,list:[],playing:null,cur:null,tok:0};
+const initial=n=>esc((n||'?').trim().charAt(0).toUpperCase());
+function initRadio(){
+  if(R.ready)return;R.ready=true;
+  $('#rcc').innerHTML='<option value="*fav">Favoritas</option><option value="">Todo o mundo</option>'+RC.map(c=>'<option value="'+c[0]+'">'+c[1]+'</option>').join('');
+  $('#rcc').value='AO';
+  let t;
+  $('#rq').addEventListener('input',()=>{clearTimeout(t);t=setTimeout(loadRadio,400)});
+  $('#rcc').addEventListener('change',loadRadio);
+  loadRadio();
+}
+async function loadRadio(){
+  const cc=$('#rcc').value,q=$('#rq').value.trim(),box=$('#rlist'),tok=++R.tok;
+  if(cc==='*fav'){
+    const f=Object.values(rfavs),ql=q.toLowerCase();
+    R.list=f.filter(s=>!ql||s.name.toLowerCase().includes(ql));
+    renderRadio(f.length?'Nenhuma favorita com esse nome.':'Ainda não tens estações favoritas. Toca no coração de uma estação para a guardar.');
+    return;
+  }
+  box.innerHTML='<div class="empty" style="grid-column:1/-1">A procurar estações…</div>';
+  try{
+    const p=new URLSearchParams({hidebroken:'true',order:'clickcount',reverse:'true',limit:'60'});
+    if(cc)p.set('countrycode',cc);
+    if(q)p.set('name',q);
+    const j=await rb('/json/stations/search?'+p.toString());
+    if(tok!==R.tok)return;
+    const seen=new Set();
+    R.list=j.filter(s=>{const k=(s.name||'').trim().toLowerCase();if(!s.url_resolved||!k||seen.has(k))return false;seen.add(k);return true})
+      .map(s=>({uuid:s.stationuuid,name:s.name.trim(),url:s.url_resolved,favicon:s.favicon||'',country:s.country||'',codec:s.codec||'',bitrate:s.bitrate||0,tags:s.tags||''}));
+    renderRadio('Nenhuma estação encontrada. Experimenta outro país ou outro nome.');
+  }catch(e){
+    if(tok!==R.tok)return;
+    box.innerHTML='<div class="err" style="grid-column:1/-1">Não foi possível carregar as estações. Verifica a ligação à internet. <button class="btn ghost" id="rretry">Tentar de novo</button></div>';
+  }
+}
+function stRow(s){
+  const on=R.playing===s.uuid,playing=on&&!aud.paused;
+  const meta=[s.country,[s.codec,s.bitrate?s.bitrate+' kbps':''].filter(Boolean).join(' '),(s.tags||'').split(',').filter(Boolean).slice(0,2).join(', ')].filter(Boolean).join(' · ');
+  return '<div class="stn'+(on?' on':'')+'" data-u="'+esc(s.uuid)+'"><div class="lg"><span>'+initial(s.name)+'</span>'+(s.favicon?'<img src="'+esc(s.favicon)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">':'')+'</div>'
+    +'<div class="info"><div class="nm">'+esc(s.name)+'</div><div class="mt">'+esc(meta)+'</div></div>'
+    +'<button class="ibtn'+(rfavs[s.uuid]?' on':'')+'" data-rf="'+esc(s.uuid)+'" aria-label="Favorita">♥</button>'
+    +'<button class="btn" data-rp="'+esc(s.uuid)+'" aria-label="Ouvir">'+(playing?'❚❚':'▶')+'</button></div>';
+}
+function renderRadio(emptyMsg){
+  $('#rlist').innerHTML=R.list.length?R.list.map(stRow).join(''):'<div class="empty" style="grid-column:1/-1">'+esc(emptyMsg)+'</div>';
+}
+function playStation(s){
+  R.cur=s;
+  startAudio({kind:'radio',live:true,i:0,queue:[{key:s.uuid,title:s.name,by:s.country,url:s.url,img:s.favicon}]});
+  fetch(RB[0]+'/json/url/'+encodeURIComponent(s.uuid)).catch(()=>{});
+}
+$('#rlist').addEventListener('click',e=>{
+  const f=e.target.closest('[data-rf]'),p=e.target.closest('[data-rp]');
+  if(f){
+    const s=R.list.find(x=>x.uuid===f.dataset.rf);if(!s)return;
+    if(rfavs[s.uuid])delete rfavs[s.uuid];else rfavs[s.uuid]=s;
+    store.set('cl_rfav',rfavs);
+    if($('#rcc').value==='*fav')loadRadio();else f.classList.toggle('on',!!rfavs[s.uuid]);
+  }
+  if(p){
+    const s=R.list.find(x=>x.uuid===p.dataset.rp);if(!s)return;
+    if(R.playing===s.uuid){aud.paused?aud.play().catch(()=>{}):aud.pause()}else playStation(s);
+  }
+});
+document.addEventListener('click',e=>{if(e.target.id==='rretry')loadRadio()});
+/* ---------- leitor de áudio (rádio, podcasts, música, audiolivros) ---------- */
+const A={q:[],i:-1,live:false,kind:'',ctx:null,head:null,pending:0,rate:+store.get('cl_rate',1)||1,last:0,drag:false};
+const RATES=[1,1.25,1.5,1.75,2,0.75];
+if(!RATES.includes(A.rate))A.rate=1;
+let aprog=store.get('cl_aprog',{});
+const abar=$('#abar');
+const fmtT=s=>{s=Math.max(0,Math.floor(+s||0));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+':'+String(m).padStart(2,'0'):String(m))+':'+String(x).padStart(2,'0')};
+const rateTxt=()=>String(A.rate).replace('.',',')+'×';
+function fitBar(){if(abar.hidden)return;document.body.style.setProperty('--abh',(abar.offsetHeight+12)+'px')}
+if(window.ResizeObserver)new ResizeObserver(fitBar).observe(abar);
+window.addEventListener('resize',fitBar);
+function curTrack(){return A.i>=0?A.q[A.i]:null}
+function syncAudio(){
+  const t=curTrack(),on=!!t&&!aud.paused,key=t?t.key:null;
+  $('#app').textContent=on?'❚❚':'▶';
+  $('#aprev').disabled=A.i<=0;
+  $('#anext').disabled=A.i<0||A.i>=A.q.length-1;
+  $$('.stn').forEach(r=>{
+    const act=A.kind==='radio'&&r.dataset.u===key;
+    r.classList.toggle('on',act);
+    const b=$('[data-rp]',r);if(b)b.textContent=act&&on?'❚❚':'▶';
+  });
+  $$('.trk').forEach(r=>{
+    const act=r.dataset.k===key;
+    r.classList.toggle('on',act);
+    const b=$('[data-tp]',r);if(b)b.textContent=act&&on?'❚❚':'▶';
+  });
+}
+function trackLabel(t){
+  if(A.live)return 'Em direto';
+  const n=A.kind==='book'?'Capítulo':A.kind==='podcast'?'Episódio':'Faixa';
+  return [t.by||'',A.q.length>1?n+' '+(A.i+1)+' de '+A.q.length:''].filter(Boolean).join(' · ');
+}
+function startAudio(o){
+  if(!player.hidden)closePlayer();
+  saveAudioProgress(true);
+  A.q=o.queue;A.i=o.i||0;A.live=!!o.live;A.kind=o.kind||'';A.ctx=o.ctx||null;A.head=o.head||null;
+  R.playing=A.kind==='radio'?A.q[A.i].key:null;
+  abar.hidden=false;abar.classList.toggle('live',A.live);
+  document.body.classList.add('hasbar');
+  loadTrack();
+}
+function loadTrack(){
+  const t=curTrack();if(!t)return;
+  const sv=A.live?null:aprog[t.key];
+  A.pending=sv&&sv.t>8&&(!sv.d||sv.d-sv.t>15)?sv.t:0;
+  const rate=A.live?1:A.rate;
+  aud.defaultPlaybackRate=rate;
+  attach(aud,t.url);
+  aud.playbackRate=rate;
+  aud.play().catch(()=>{});
+  $('#aname').textContent=t.title;
+  $('#astat').textContent=A.live?'A ligar…':trackLabel(t);
+  $('#aseek').value=0;$('#atime').textContent='0:00';$('#adur').textContent='--:--';
+  $('#aspeed').textContent=rateTxt();
+  setMedia(t);syncAudio();fitBar();
+}
+function stepTrack(d){
+  if(A.i<0||A.live)return;
+  if(d<0&&aud.currentTime>5){aud.currentTime=0;return}
+  const n=A.i+d;if(n<0||n>=A.q.length)return;
+  saveAudioProgress(true);A.i=n;loadTrack();
+}
+function saveAudioProgress(force){
+  const t=curTrack();if(!t||A.live)return;
+  const d=aud.duration,c=aud.currentTime;
+  if(!isFinite(d)||d<=0)return;
+  const now=Date.now();if(!force&&now-A.last<5000)return;A.last=now;
+  if(c/d>.97||d-c<10)delete aprog[t.key];
+  else if(c>5)aprog[t.key]={key:t.key,t:c,d:d,ts:now,title:t.title,sub:t.by||t.sub||'',img:t.img||'',url:t.url,kind:A.kind,ctx:A.ctx,i:A.i};
+  const ks=Object.keys(aprog);
+  if(ks.length>80)ks.sort((a,b)=>aprog[a].ts-aprog[b].ts).slice(0,ks.length-80).forEach(k=>delete aprog[k]);
+  store.set('cl_aprog',aprog);
+}
+function setMedia(t){
+  if(!('mediaSession' in navigator))return;
+  try{
+    const ms=navigator.mediaSession;
+    ms.metadata=new MediaMetadata({title:t.title,artist:t.by||t.sub||'',album:A.kind==='radio'?'Rádio':'Cine Livre',artwork:t.img?[{src:t.img,sizes:'512x512'}]:[]});
+    ms.setActionHandler('play',()=>aud.play().catch(()=>{}));
+    ms.setActionHandler('pause',()=>aud.pause());
+    ms.setActionHandler('previoustrack',A.live?null:()=>stepTrack(-1));
+    ms.setActionHandler('nexttrack',A.live?null:()=>stepTrack(1));
+    ms.setActionHandler('seekbackward',A.live?null:()=>{aud.currentTime=Math.max(0,aud.currentTime-15)});
+    ms.setActionHandler('seekforward',A.live?null:()=>{aud.currentTime=aud.currentTime+30});
+  }catch(e){}
+}
+aud.addEventListener('loadedmetadata',()=>{
+  if(A.pending&&isFinite(aud.duration)&&A.pending<aud.duration-10)aud.currentTime=A.pending;
+  A.pending=0;
+  if(!A.live)aud.playbackRate=A.rate;
+});
+aud.addEventListener('playing',()=>{const t=curTrack();if(t)$('#astat').textContent=trackLabel(t);syncAudio()});
+aud.addEventListener('waiting',()=>{if(A.i>=0)$('#astat').textContent='A carregar…'});
+aud.addEventListener('play',syncAudio);
+aud.addEventListener('pause',()=>{saveAudioProgress(true);syncAudio()});
+aud.addEventListener('timeupdate',()=>{
+  if(A.live||A.i<0)return;
+  const d=aud.duration,c=aud.currentTime;
+  if(!A.drag&&isFinite(d)&&d>0)$('#aseek').value=Math.round(c/d*1000);
+  $('#atime').textContent=fmtT(c);$('#adur').textContent=isFinite(d)?fmtT(d):'--:--';
+  saveAudioProgress(false);
+});
+aud.addEventListener('ended',()=>{
+  if(A.live||A.i<0)return;
+  const t=curTrack();if(t){delete aprog[t.key];store.set('cl_aprog',aprog)}
+  if(A.i<A.q.length-1){A.i++;loadTrack()}
+  else{$('#astat').textContent='Terminou';syncAudio()}
+});
+aud.addEventListener('error',()=>{
+  if(A.i<0)return;
+  $('#astat').textContent=A.live?'Sem sinal. Experimenta outra estação.':'Não foi possível abrir este áudio.';
+  syncAudio();
+});
+$('#app').addEventListener('click',()=>{if(A.i<0)return;aud.paused?aud.play().catch(()=>{}):aud.pause()});
+$('#aprev').addEventListener('click',()=>stepTrack(-1));
+$('#anext').addEventListener('click',()=>stepTrack(1));
+$('#aback').addEventListener('click',()=>{aud.currentTime=Math.max(0,aud.currentTime-15)});
+$('#afwd').addEventListener('click',()=>{aud.currentTime=aud.currentTime+30});
+$('#aspeed').addEventListener('click',()=>{
+  A.rate=RATES[(RATES.indexOf(A.rate)+1)%RATES.length];store.set('cl_rate',A.rate);
+  if(!A.live){aud.defaultPlaybackRate=A.rate;aud.playbackRate=A.rate}
+  $('#aspeed').textContent=rateTxt();
+});
+['pointerdown','touchstart','keydown'].forEach(ev=>$('#aseek').addEventListener(ev,()=>{A.drag=true}));
+['pointerup','touchend','change','blur'].forEach(ev=>$('#aseek').addEventListener(ev,()=>{A.drag=false}));
+$('#aseek').addEventListener('input',()=>{
+  const d=aud.duration;if(!isFinite(d)||d<=0)return;
+  const t=$('#aseek').value/1000*d;aud.currentTime=t;$('#atime').textContent=fmtT(t);
+});
+$('#astop').addEventListener('click',()=>{
+  saveAudioProgress(true);
+  A.i=-1;A.q=[];R.playing=null;detach(aud);
+  abar.hidden=true;document.body.classList.remove('hasbar');
+  if('mediaSession' in navigator){try{navigator.mediaSession.metadata=null}catch(e){}}
+  syncAudio();renderACont();
+});
+
+/* ---------- enviar para a TV ---------- */
+const tvdlg=$('#tvdlg');
+function tvHelp(){if(!tvdlg.open)tvdlg.showModal()}
+function sendToTv(el){
+  if(el===vid&&P&&P.local){toast('Ficheiros do teu aparelho não podem ser enviados pelo botão.');tvHelp();return}
+  if(hlsRef.get(el)){toast('Este canal abriu pelo leitor da app e não pode ser enviado pelo botão.');tvHelp();return}
+  const fail=e=>{
+    const n=e&&e.name;
+    if(n==='AbortError')return;
+    if(n==='NotFoundError'){toast('Não encontrei nenhuma TV ou Chromecast na mesma rede Wi-Fi.');return}
+    tvHelp();
+  };
+  try{
+    if(el.remote&&el.remote.prompt){el.remote.prompt().catch(fail);return}
+    if(el.webkitShowPlaybackTargetPicker){el.webkitShowPlaybackTargetPicker();return}
+  }catch(e){fail(e);return}
+  fail(null);
+}
+$('#ptv').addEventListener('click',()=>sendToTv(vid));
+$('#acast').addEventListener('click',()=>sendToTv(aud));
+$('#tvhelp').addEventListener('click',tvHelp);
+$('#tvclose').addEventListener('click',()=>tvdlg.close());
+tvdlg.addEventListener('click',e=>{if(e.target===tvdlg)tvdlg.close()});
+function setTvMode(on){
+  document.body.classList.toggle('tvmode',!!on);store.set('cl_tvmode',!!on);
+  $('#tvmode').textContent=on?'Desativar modo TV':'Ativar modo TV';
+}
+$('#tvmode').addEventListener('click',()=>setTvMode(!document.body.classList.contains('tvmode')));
+setTvMode(!!store.get('cl_tvmode',false));
+
+/* ---------- TV ---------- */
+const TVC=[
+  {name:'DW English',grp:'Notícias · Alemanha',url:'https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/index.m3u8'},
+  {name:'DW Español',grp:'Notícias · Alemanha',url:'https://dwamdstream104.akamaized.net/hls/live/2015530/dwstream104/index.m3u8'},
+  {name:'France 24 English',grp:'Notícias · França',url:'https://static.france24.com/live/F24_EN_HI_HLS/live_web.m3u8'},
+  {name:'France 24 Français',grp:'Notícias · França',url:'https://static.france24.com/live/F24_FR_HI_HLS/live_web.m3u8'},
+  {name:'France 24 Español',grp:'Notícias · França',url:'https://static.france24.com/live/F24_ES_HI_HLS/live_web.m3u8'},
+  {name:'Al Jazeera English',grp:'Notícias · Catar',url:'https://live-hls-apps-aje-fa.getaj.net/AJE/index.m3u8'},
+  {name:'NASA TV',grp:'Ciência · Estados Unidos',url:'https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8'}
+];
+const TVCC=[['AO','Angola'],['PT','Portugal'],['BR','Brasil'],['MZ','Moçambique'],['CV','Cabo Verde'],['GW','Guiné-Bissau'],['ST','São Tomé e Príncipe']];
+const TV={ready:false,list:[],tok:0};
+function parseM3u(t){
+  const out=[],L=t.split(/\r?\n/);
+  for(let i=0;i<L.length;i++){
+    if(!L[i].startsWith('#EXTINF'))continue;
+    const name=L[i].split(',').slice(1).join(',').trim();
+    const logo=(L[i].match(/tvg-logo="([^"]*)"/)||[])[1]||'';
+    const grp=(L[i].match(/group-title="([^"]*)"/)||[])[1]||'';
+    let j=i+1;while(j<L.length&&(!L[j].trim()||L[j].startsWith('#')))j++;
+    const url=(L[j]||'').trim();
+    if(/^https?:\/\//.test(url)&&name&&!/xxx|adult/i.test(grp))out.push({name,logo,grp,url});
+    i=j;
+  }
+  return out;
+}
+function chCard(c,k,i){
+  return '<button class="ch" data-k="'+k+'" data-i="'+i+'"><span class="lg"><span>'+initial(c.name)+'</span>'+(c.logo?'<img src="'+esc(c.logo)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">':'')+'</span><span class="nm">'+esc(c.name)+'</span>'+(c.grp?'<span class="mt">'+esc(c.grp)+'</span>':'')+'</button>';
+}
+function initTv(){
+  if(TV.ready)return;TV.ready=true;
+  $('#tvcur').innerHTML=TVC.map((c,i)=>chCard(c,'c',i)).join('');
+  $('#tcc').innerHTML=TVCC.map(c=>'<option value="'+c[0]+'">'+c[1]+'</option>').join('');
+  $('#tcc').addEventListener('change',loadTv);
+  $('#tq').addEventListener('input',renderTv);
+  loadTv();
+}
+async function loadTv(){
+  const cc=$('#tcc').value,tok=++TV.tok,box=$('#tvlist');
+  box.innerHTML='<div class="empty" style="grid-column:1/-1">A carregar canais…</div>';
+  try{
+    const r=await fetch('https://iptv-org.github.io/iptv/countries/'+cc.toLowerCase()+'.m3u');
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const l=parseM3u(await r.text());
+    if(tok!==TV.tok)return;
+    TV.list=l;renderTv();
+  }catch(e){
+    if(tok!==TV.tok)return;
+    TV.list=[];
+    box.innerHTML='<div class="err" style="grid-column:1/-1">Não foi possível carregar a lista deste país. Verifica a ligação à internet.</div>';
+  }
+}
+function renderTv(){
+  const q=$('#tq').value.trim().toLowerCase();
+  const items=TV.list.map((c,i)=>[c,i]).filter(x=>!q||x[0].name.toLowerCase().includes(q));
+  $('#tvlist').innerHTML=items.length?items.map(x=>chCard(x[0],'l',x[1])).join(''):'<div class="empty" style="grid-column:1/-1">Nenhum canal nesta lista.</div>';
+}
+$('#v-tv').addEventListener('click',e=>{
+  const b=e.target.closest('.ch');if(!b)return;
+  const c=(b.dataset.k==='c'?TVC:TV.list)[+b.dataset.i];if(!c)return;
+  openPlayer({key:null,id:null,live:true,title:c.name,sources:[{label:'Direto',url:c.url}],subs:[],start:0});
+});
+
+/* ---------- biblioteca: visto, histórico, cópia ---------- */
+function markSeen(p){
+  if(!p||!p.id||p.local||p.live)return;
+  if(!seen[p.id]){seen[p.id]=Date.now();store.set('cl_seen',seen)}
+  if(later[p.id]){delete later[p.id];store.set('cl_later',later)}
+}
+function addHist(o){
+  hist=hist.filter(x=>x.id!==o.id);
+  hist.unshift({id:o.id,title:o.title,year:o.year||'',ts:Date.now()});
+  hist=hist.slice(0,80);store.set('cl_hist',hist);
+}
+$$('#btabs button').forEach(b=>b.addEventListener('click',()=>{btab=b.dataset.t;renderFavs()}));
+$('#hclear').addEventListener('click',()=>{hist=[];store.set('cl_hist',hist);renderFavs()});
+const BKEYS=['cl_favs','cl_prog','cl_later','cl_seen','cl_hist','cl_notes','cl_rfav','cl_pfol','cl_aprog','cl_rate','cl_addons'];
+$('#bexp').addEventListener('click',()=>{
+  const out={app:'cine-livre',versao:2,data:Date.now(),itens:{}};
+  BKEYS.forEach(k=>{const v=store.get(k,null);if(v!==null)out.itens[k]=v});
+  try{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([JSON.stringify(out)],{type:'application/json'}));
+    a.download='cine-livre-copia-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+    toast('Cópia guardada. Procura o ficheiro nas transferências.');
+  }catch(e){toast('Não foi possível guardar a cópia neste navegador.')}
+});
+$('#bimpb').addEventListener('click',()=>$('#bimp').click());
+$('#bimp').addEventListener('change',async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{
+    const j=JSON.parse(await f.text());
+    if(!j||j.app!=='cine-livre'||!j.itens||typeof j.itens!=='object')throw new Error('formato');
+    let n=0;
+    BKEYS.forEach(k=>{
+      const v=j.itens[k];if(v===undefined||v===null)return;
+      const ok=(k==='cl_hist'||k==='cl_addons')?Array.isArray(v):k==='cl_rate'?typeof v==='number':(typeof v==='object'&&!Array.isArray(v));
+      if(ok){store.set(k,v);n++}
+    });
+    toast('Cópia restaurada ('+n+' listas). A recarregar…');
+    setTimeout(()=>location.reload(),900);
+  }catch(err){toast('Este ficheiro não é uma cópia do Cine Livre.')}
+});
+
+/* ---------- continuar a ouvir ---------- */
+function renderACont(){
+  const items=Object.values(aprog).sort((a,b)=>b.ts-a.ts).slice(0,10);
+  $('#acont-sec').hidden=!items.length;
+  $('#acont-row').innerHTML=items.map(p=>'<button class="card pcard" data-ak="'+esc(p.key)+'">'
+    +'<span class="thumb sq" style="display:block"><span class="ph">'+initial(p.title)+'</span>'+(p.img?'<img src="'+esc(p.img)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">':'')
+    +'<span class="bar"><i style="width:'+(p.d?Math.min(100,p.t/p.d*100):0)+'%"></i></span></span>'
+    +'<span class="ct" style="display:-webkit-box">'+esc(p.title)+'</span><span class="cy" style="display:block">'+esc(p.sub||'')+'</span></button>').join('');
+}
+async function resumeAudio(key){
+  const p=aprog[key];if(!p)return;
+  const single=()=>startAudio({kind:p.kind,i:0,queue:[{key,title:p.title,by:p.sub,url:p.url||key,img:p.img}],ctx:p.ctx});
+  try{
+    if(p.ctx&&p.ctx.type==='archive'){
+      const r=await loadArchiveTracks(p.ctx.id,p.kind);
+      const i=r.tracks.findIndex(x=>x.key===key);
+      if(i>=0)return startAudio({kind:p.kind,i,queue:r.tracks,ctx:p.ctx});
+    }else if(p.ctx&&p.ctx.type==='podcast'){
+      const r=await loadPodcastTracks(p.ctx.id);
+      const i=r.tracks.findIndex(x=>x.key===key);
+      if(i>=0)return startAudio({kind:'podcast',i,queue:r.tracks,ctx:p.ctx});
+    }
+  }catch(e){}
+  single();
+}
+
+/* ---------- folha de álbum, livro ou podcast ---------- */
+const adlg=$('#adlg');
+const SH={tracks:[],kind:'',ctx:null,fol:null,tok:0};
+function renderTracks(){
+  const c=curTrack(),on=!!c&&!aud.paused;
+  $('#atracks').innerHTML=SH.tracks.length?SH.tracks.map((t,i)=>{
+    const p=(SH.media==='video'?progress:aprog)[t.key],isCur=SH.media!=='video'&&!!c&&t.key===c.key;
+    return '<div class="trk'+(isCur?' on':'')+'" data-k="'+esc(t.key)+'"><div class="info"><div class="nm2">'+esc(t.title)+'</div><div class="mt">'+esc(t.sub||'')+(p?(t.sub?' · ':'')+'retoma em '+fmtT(p.t):'')+'</div></div>'
+      +'<button class="btn" type="button" data-tp="'+i+'" aria-label="Ouvir">'+(isCur&&on?'❚❚':'▶')+'</button></div>';
+  }).join(''):'<div class="empty">Este título não tem ficheiros de áudio que o navegador consiga abrir.</div>';
+}
+function updFollow(){const f=SH.fol;$('#afollow').hidden=!f;if(f)$('#afollow').textContent=pfol[f.id]?'A seguir':'Seguir'}
+async function openSheet(h,loader){
+  SH.tracks=[];SH.kind=h.kind;SH.ctx=h.ctx;SH.fol=h.fol||null;
+  SH.media=h.media||'audio';SH.live=!!h.live;
+  $('#aplayall').textContent=SH.media==='video'?'Ver':'Ouvir';
+  const tok=++SH.tok;
+  $('#atitle').textContent=h.title;$('#asub').textContent=h.sub||'';
+  $('#acph').textContent=(h.title||'?').trim().charAt(0).toUpperCase();
+  const cv=$('#acov');
+  if(h.cover){cv.hidden=false;cv.onerror=()=>{cv.hidden=true};cv.src=h.cover}else{cv.hidden=true;cv.removeAttribute('src')}
+  $('#adesc').hidden=true;$('#adesc').textContent='';
+  $('#aorder').hidden=true;
+  $('#atracks').innerHTML='<div class="empty">A carregar…</div>';
+  $('#aplayall').disabled=true;
+  updFollow();
+  if(!adlg.open)adlg.showModal();
+  try{
+    const r=await loader();
+    if(tok!==SH.tok)return;
+    SH.tracks=r.tracks;
+    if(r.title)$('#atitle').textContent=r.title;
+    if(r.sub)$('#asub').textContent=r.sub;
+    if(r.desc){$('#adesc').textContent=r.desc.length>600?r.desc.slice(0,600)+'…':r.desc;$('#adesc').hidden=false}
+    $('#aorder').hidden=!(h.kind==='podcast'&&r.tracks.length>1);
+    $('#aplayall').disabled=!r.tracks.length;
+    renderTracks();
+  }catch(e){
+    if(tok!==SH.tok)return;
+    $('#atracks').innerHTML='<div class="err">Não foi possível carregar a lista. Verifica a ligação à internet.</div>';
+  }
+}
+$('#aclose').addEventListener('click',()=>adlg.close());
+adlg.addEventListener('click',e=>{if(e.target===adlg)adlg.close()});
+$('#aplayall').addEventListener('click',()=>{
+  if(!SH.tracks.length)return;
+  const c=curTrack();
+  if(SH.media!=='video'&&c&&A.kind===SH.kind&&SH.tracks.some(x=>x.key===c.key)){aud.paused?aud.play().catch(()=>{}):aud.pause();return}
+  let i=0,best=0;
+  SH.tracks.forEach((t,k)=>{const p=(SH.media==='video'?progress:aprog)[t.key];if(p&&p.ts>best){best=p.ts;i=k}});
+  playFromSheet(i);
+});
+function playFromSheet(i){
+  if(SH.media==='video'){
+    const t=SH.tracks[i];if(!t)return;
+    adlg.close();
+    openPlayer({key:t.key,id:null,title:t.title,sources:t.sources,subs:t.subs||[],live:!!t.live,start:0,keep:{addon:true,img:t.img,sources:t.sources,subs:t.subs||[]}});
+    return;
+  }
+  const cv=$('#acov');
+  startAudio({kind:SH.kind,live:SH.live,i,queue:SH.tracks,ctx:SH.ctx,head:{title:$('#atitle').textContent,sub:$('#asub').textContent,cover:cv.hidden?'':cv.src,fol:SH.fol}});
+  adlg.close();
+}
+function reopenSheet(){
+  const c=curTrack();if(!c||A.live)return;
+  if(!SH.tracks.some(x=>x.key===c.key)){
+    const h=A.head||{};
+    SH.tracks=A.q;SH.kind=A.kind;SH.ctx=A.ctx;SH.fol=h.fol||null;
+    $('#atitle').textContent=h.title||c.by||'Lista';$('#asub').textContent=h.sub||'';
+    $('#acph').textContent=($('#atitle').textContent||'?').trim().charAt(0).toUpperCase();
+    const cv=$('#acov');
+    if(h.cover){cv.hidden=false;cv.onerror=()=>{cv.hidden=true};cv.src=h.cover}else{cv.hidden=true;cv.removeAttribute('src')}
+    $('#adesc').hidden=true;$('#aorder').hidden=true;$('#aplayall').disabled=false;
+    updFollow();
+  }
+  renderTracks();
+  if(!adlg.open)adlg.showModal();
+}
+$('#aname').addEventListener('click',reopenSheet);
+$('#aname').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();reopenSheet()}});
+$('#atracks').addEventListener('click',e=>{
+  const b=e.target.closest('[data-tp]');if(!b)return;
+  const i=+b.dataset.tp,t=SH.tracks[i];if(!t)return;
+  const c=curTrack();
+  if(SH.media!=='video'&&c&&c.key===t.key&&A.kind===SH.kind){aud.paused?aud.play().catch(()=>{}):aud.pause();return}
+  playFromSheet(i);
+});
+$('#aorder').addEventListener('click',()=>{SH.tracks=SH.tracks.slice().reverse();renderTracks()});
+let pfol=store.get('cl_pfol',{});
+$('#afollow').addEventListener('click',()=>{
+  const f=SH.fol;if(!f)return;
+  if(pfol[f.id])delete pfol[f.id];else pfol[f.id]={...f,added:Date.now()};
+  store.set('cl_pfol',pfol);updFollow();renderFollowed();
+});
+
+/* ---------- carregar faixas ---------- */
+async function loadArchiveTracks(id,kind){
+  const j=await getMeta(id);
+  const md=j.metadata||{};
+  const pref=kind==='book'?['64kbps mp3','vbr mp3','128kbps mp3','mp3']:['vbr mp3','128kbps mp3','mp3','64kbps mp3'];
+  const all=(j.files||[]).filter(f=>/\.mp3$/i.test(f.name));
+  let files=[];
+  for(const p of pref){files=all.filter(f=>String(f.format||'').toLowerCase()===p);if(files.length)break}
+  if(!files.length)files=all;
+  const num=f=>{const m=String(f.track||'').match(/\d+/);return m?+m[0]:null};
+  files.sort((a,b)=>{const x=num(a),y=num(b);if(x!=null&&y!=null&&x!==y)return x-y;return a.name.localeCompare(b.name,undefined,{numeric:true})});
+  const dur=v=>{if(v==null||v==='')return 0;const s=String(v);return s.includes(':')?s.split(':').reduce((a,x)=>a*60+(+x||0),0):(+s||0)};
+  const who=first(md.creator)||'';
+  const tracks=files.map((f,i)=>({
+    key:fileUrl(id,f.name),url:fileUrl(id,f.name),img:thumbUrl(id),by:who,
+    title:f.title||((kind==='book'?'Capítulo ':'Faixa ')+(i+1)),
+    sub:dur(f.length)?fmtT(dur(f.length)):''
+  }));
+  const d=new DOMParser().parseFromString('<div>'+(first(md.description)||'')+'</div>','text/html').body.textContent.trim().replace(/\s+/g,' ');
+  return {tracks,meta:{title:first(md.title)||id,creator:who,year:first(md.year)||String(first(md.date)||'').slice(0,4),desc:d}};
+}
+function jsonp(url){
+  return new Promise((res,rej)=>{
+    const cb='__itcb'+Date.now()+Math.floor(Math.random()*1e4);
+    const s=document.createElement('script');
+    const done=()=>{clearTimeout(to);delete window[cb];s.remove()};
+    const to=setTimeout(()=>{done();rej(new Error('timeout'))},12000);
+    window[cb]=d=>{done();res(d)};
+    s.onerror=()=>{done();rej(new Error('jsonp'))};
+    s.src=url+(url.includes('?')?'&':'?')+'callback='+cb;
+    document.head.appendChild(s);
+  });
+}
+function itunes(path){
+  const url='https://itunes.apple.com/'+path;
+  return fetch(url).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).catch(()=>jsonp(url));
+}
+async function loadPodcastTracks(id,name){
+  const j=await itunes('lookup?id='+encodeURIComponent(id)+'&entity=podcastEpisode&limit=100');
+  const res=j.results||[];
+  const show=res.find(x=>x.kind==='podcast');
+  const pn=(show&&show.collectionName)||name||(POD.get(String(id))||{}).name||'';
+  const tracks=res.filter(x=>x.kind==='podcast-episode'&&x.episodeUrl).map(e=>({
+    key:e.episodeUrl,url:e.episodeUrl,img:e.artworkUrl160||e.artworkUrl600||'',by:pn,
+    title:e.trackName||'Episódio',
+    sub:[e.releaseDate?new Date(e.releaseDate).toLocaleDateString('pt-PT',{day:'numeric',month:'short',year:'numeric'}):'',e.trackTimeMillis?fmtT(e.trackTimeMillis/1000):''].filter(Boolean).join(' · ')
+  }));
+  return {tracks};
+}
+
+/* ---------- podcasts ---------- */
+const POD=new Map();
+const PCC=[['PT','Portugal'],['AO','Angola'],['BR','Brasil'],['MZ','Moçambique'],['CV','Cabo Verde'],['US','Estados Unidos']];
+const PCHIPS=['Angola','Notícias','História','Humor','Música','Negócios','Futebol','Ciência'];
+let podReady=false,podTok=0;
+function podCard(p){
+  POD.set(p.id,p);
+  return '<button class="card pcard" data-pid="'+esc(p.id)+'"><span class="thumb sq" style="display:block"><span class="ph">'+initial(p.name)+'</span>'+(p.art?'<img src="'+esc(p.art)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">':'')+'</span><span class="ct" style="display:-webkit-box">'+esc(p.name)+'</span><span class="cy" style="display:block">'+esc(p.artist)+'</span></button>';
+}
+function renderFollowed(){
+  const f=Object.values(pfol).sort((a,b)=>b.added-a.added);
+  $('#pfol-sec').hidden=!f.length;
+  $('#pfol').innerHTML=f.map(x=>podCard({id:x.id,name:x.name,artist:x.artist,art:x.art})).join('');
+}
+function initPodcasts(){
+  if(podReady){renderFollowed();return}
+  podReady=true;
+  $('#pcc').innerHTML=PCC.map(c=>'<option value="'+c[0]+'">'+c[1]+'</option>').join('');
+  $('#pchips').innerHTML=PCHIPS.map(c=>'<button type="button" data-q="'+esc(c)+'">'+esc(c)+'</button>').join('');
+  $('#pchips').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$('#psrch').value=b.dataset.q;searchPods()});
+  $('#pform').addEventListener('submit',e=>{e.preventDefault();searchPods()});
+  $('#pcc').addEventListener('change',searchPods);
+  $('#psrch').value='Angola';
+  renderFollowed();searchPods();
+}
+async function searchPods(){
+  const q=$('#psrch').value.trim();if(!q)return;
+  const tok=++podTok,box=$('#pres');
+  $('#pcount').textContent='A pesquisar…';
+  box.innerHTML=skels(12);
+  try{
+    const j=await itunes('search?media=podcast&entity=podcast&limit=30&country='+$('#pcc').value+'&term='+encodeURIComponent(q));
+    if(tok!==podTok)return;
+    const r=(j.results||[]).filter(x=>x.collectionId).map(x=>({id:String(x.collectionId),name:x.collectionName||'Podcast',artist:x.artistName||'',art:x.artworkUrl600||x.artworkUrl100||''}));
+    $('#pcount').textContent=r.length?r.length+' podcasts':'';
+    box.innerHTML=r.length?r.map(podCard).join(''):'<div class="empty" style="grid-column:1/-1">Nenhum podcast encontrado. Experimenta outra palavra ou outro país.</div>';
+  }catch(e){
+    if(tok!==podTok)return;
+    $('#pcount').textContent='';
+    box.innerHTML='<div class="err" style="grid-column:1/-1">Não foi possível pesquisar podcasts agora. Verifica a ligação à internet. <button class="btn ghost" id="pretry" type="button">Tentar de novo</button></div>';
+  }
+}
+
+/* ---------- separador Áudio: audiolivros, música, concertos ---------- */
+const AU={tab:'book',q:'',lang:'Portuguese',sort:'downloads desc',page:1,total:0,busy:false,ready:false,tok:0};
+const AUQ={book:'collection:librivoxaudio AND mediatype:audio',music:'collection:netlabels AND mediatype:audio',live:'collection:etree'};
+const LANG3={Portuguese:'por',English:'eng',Spanish:'spa',French:'fre'};
+const AUM=new Map();
+function initAudioTab(){
+  if(AU.ready)return;AU.ready=true;
+  $('#alang').innerHTML=[['Portuguese','Português'],['','Todas as línguas'],['English','Inglês'],['Spanish','Espanhol'],['French','Francês']].map(c=>'<option value="'+c[0]+'">'+c[1]+'</option>').join('');
+  $$('#atabs button').forEach(b=>b.addEventListener('click',()=>{
+    AU.tab=b.dataset.t;
+    $$('#atabs button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+    $('#alang').hidden=AU.tab!=='book';
+    loadAudioList(true);
+  }));
+  let t;
+  $('#aq').addEventListener('input',()=>{clearTimeout(t);t=setTimeout(()=>{AU.q=$('#aq').value;loadAudioList(true)},350)});
+  ['alang','asort'].forEach(id=>$('#'+id).addEventListener('change',()=>{AU.lang=$('#alang').value;AU.sort=$('#asort').value;loadAudioList(true)}));
+  $('#amore').addEventListener('click',()=>loadAudioList(false));
+  loadAudioList(true);
+}
+function audioQ(){
+  const p=[AUQ[AU.tab]];
+  if(AU.tab==='book'&&AU.lang)p.push('(language:'+AU.lang+' OR language:'+LANG3[AU.lang]+')');
+  const t=AU.q.trim().replace(/["\\()\[\]:{}^~*?!+\-]/g,' ').replace(/\s+/g,' ').trim();
+  if(t)p.push('(title:('+t+') OR creator:('+t+') OR subject:('+t+'))');
+  return p.join(' AND ');
+}
+function audioCard(m){
+  AUM.set(m.id,m);
+  return '<button class="card acard" data-aid="'+esc(m.id)+'"><span class="thumb sq" style="display:block"><span class="ph">'+initial(m.title)+'</span><img src="'+thumbUrl(m.id)+'" alt="" loading="lazy" onerror="this.remove()"></span><span class="ct" style="display:-webkit-box">'+esc(m.title)+'</span><span class="cy" style="display:block">'+esc(m.creator||m.year)+'</span></button>';
+}
+async function loadAudioList(reset){
+  if(AU.busy&&!reset)return;
+  const tok=++AU.tok;AU.busy=true;
+  if(reset){AU.page=1;$('#alist').innerHTML=skels(12);$('#acount').textContent='A pesquisar…';$('#amore').hidden=true}else AU.page++;
+  try{
+    const r=await search(audioQ(),{rows:30,page:AU.page,sort:AU.sort});
+    if(tok!==AU.tok)return;
+    AU.total=r.total;
+    const html=r.docs.map(audioCard).join('');
+    if(reset)$('#alist').innerHTML=html||'<div class="empty" style="grid-column:1/-1">Nada encontrado. Experimenta outro termo ou outra língua.</div>';
+    else $('#alist').insertAdjacentHTML('beforeend',html);
+    const shown=$$('#alist .acard').length;
+    $('#acount').textContent=AU.total?AU.total.toLocaleString('pt-PT')+' títulos':'';
+    $('#amore').hidden=shown>=AU.total||!r.docs.length;
+  }catch(e){
+    if(tok!==AU.tok)return;
+    if(!reset)AU.page--;
+    if(reset){$('#alist').innerHTML='<div class="err" style="grid-column:1/-1">Não foi possível carregar a lista. Verifica a ligação à internet. <button class="btn ghost" id="aretry" type="button">Tentar de novo</button></div>';$('#acount').textContent=''}
+  }
+  if(tok===AU.tok)AU.busy=false;
+}
+
+/* ---------- addons ---------- */
+let addons=store.get('cl_addons',[]);
+if(!Array.isArray(addons))addons=[];
+const AIT=new Map(),ADC=new Map();
+const enabledAddons=()=>addons.filter(a=>a&&a.enabled!==false&&Array.isArray(a.catalogs));
+const saveAddons=()=>store.set('cl_addons',addons);
+const cut=(v,n)=>String(v==null?'':v).replace(/\s+/g,' ').trim().slice(0,n);
+const KINDS=['video','audio','live'];
+function safeUrl(u,base){
+  try{if(!u)return '';const x=new URL(String(u),base||undefined);return /^https?:$/.test(x.protocol)?x.href:''}
+  catch(e){return ''}
+}
+function normStreams(arr,base){
+  if(!Array.isArray(arr))return [];
+  return arr.slice(0,8).map((s,i)=>{
+    const o=typeof s==='string'?{url:s}:(s&&typeof s==='object'?s:{});
+    return {label:cut(o.label,30)||('Fonte '+(i+1)),url:safeUrl(o.url,base)};
+  }).filter(s=>s.url);
+}
+function normSubs(arr,base){
+  if(!Array.isArray(arr))return [];
+  return arr.slice(0,8).map((s,i)=>{
+    const o=s&&typeof s==='object'?s:{};
+    return {label:cut(o.label,30)||('Legenda '+(i+1)),url:safeUrl(o.url,base)};
+  }).filter(s=>s.url);
+}
+function uniqIds(list){
+  const seenIds=new Set();
+  return list.map((x,i)=>{let id=x.id;if(seenIds.has(id))id=id+'-'+i;seenIds.add(id);return {...x,id}});
+}
+function normItem(r,base,i,defKind){
+  r=r&&typeof r==='object'?r:{};
+  const eps=Array.isArray(r.episodes)?r.episodes.slice(0,500).map((e,j)=>{
+    e=e&&typeof e==='object'?e:{};
+    return {id:cut(e.id==null?'e'+j:e.id,60),title:cut(e.title,200)||('Parte '+(j+1)),streams:normStreams(e.streams||(e.url?[{url:e.url}]:[]),base),subtitles:normSubs(e.subtitles,base)};
+  }).filter(e=>e.streams.length):[];
+  return {
+    id:cut(r.id==null?'i'+i:r.id,80),
+    title:cut(r.title||r.name,200)||('Título '+(i+1)),
+    year:cut(r.year,12),
+    sub:cut(r.sub,80),
+    poster:safeUrl(r.poster||r.image,base),
+    description:cut(r.description,1500),
+    kind:KINDS.includes(r.kind)?r.kind:(defKind||'video'),
+    streams:normStreams(r.streams||(r.url?[{url:r.url}]:[]),base),
+    subtitles:normSubs(r.subtitles,base),
+    episodes:uniqIds(eps)
+  };
+}
+function parseManifest(raw,base){
+  if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('O ficheiro não é um addon válido.');
+  const id=String(raw.id||'').trim();
+  if(!/^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$/.test(id))throw new Error('O addon precisa de um "id" com 3 a 64 letras, números, pontos ou hífenes.');
+  const name=cut(raw.name,60);
+  if(!name)throw new Error('O addon precisa de um "name".');
+  const cats=Array.isArray(raw.catalogs)?raw.catalogs.slice(0,30):[];
+  if(!cats.length)throw new Error('O addon não tem catálogos. Falta a lista "catalogs".');
+  let total=0;const seenC=new Set();
+  const catalogs=cats.map((c,i)=>{
+    c=c&&typeof c==='object'?c:{};
+    let cid=cut(c.id||('c'+i),40);
+    if(seenC.has(cid))cid+='-'+i;
+    seenC.add(cid);
+    const o={id:cid,name:cut(c.name,80)||('Catálogo '+(i+1)),kind:KINDS.includes(c.kind)?c.kind:''};
+    if(Array.isArray(c.items)){
+      o.items=uniqIds(c.items.slice(0,500).map((it,j)=>normItem(it,base,j,o.kind)).filter(it=>it.streams.length||it.episodes.length));
+      total+=o.items.length;
+    }else if(c.url){
+      const u=safeUrl(c.url,base);
+      if(!u)throw new Error('O catálogo "'+o.name+'" tem um endereço inválido.');
+      o.url=u;
+      if(c.format==='librivox')o.format='librivox';
+      if(c.adapter!=null){
+        if(c.adapter!=='librivox')throw new Error('O catálogo "'+o.name+'" usa um adaptador desconhecido.');
+        if(new URL(u).hostname!=='librivox.org')throw new Error('O adaptador "librivox" só aceita endereços de librivox.org.');
+        o.adapter='librivox';o.kind='audio';
+      }
+    }else throw new Error('O catálogo "'+o.name+'" precisa de "items" ou de "url".');
+    return o;
+  });
+  if(total>1500)throw new Error('Há demasiados títulos escritos dentro do addon. Passa os catálogos grandes para um endereço ("url").');
+  return {id,name,version:cut(raw.version,20),author:cut(raw.author,60),description:cut(raw.description,300),catalogs};
+}
+function lvText(h){try{return new DOMParser().parseFromString(String(h||''),'text/html').body.textContent||''}catch(e){return ''}}
+function lvItem(b){
+  b=b&&typeof b==='object'?b:{};
+  const au=(Array.isArray(b.authors)?b.authors:[]).map(x=>[x&&x.first_name,x&&x.last_name].filter(Boolean).join(' ')).filter(Boolean).join(', ');
+  const ia=String(b.url_iarchive||'').split('/').filter(Boolean).pop()||'';
+  const secs=Array.isArray(b.sections)?b.sections:[];
+  return normItem({
+    id:'lv'+b.id,title:b.title,year:b.copyright_year,sub:au,
+    poster:/^[A-Za-z0-9._-]+$/.test(ia)?'https://archive.org/services/img/'+ia:'',
+    description:(au?au+'. ':'')+lvText(b.description),
+    kind:'audio',
+    episodes:secs.map(x=>({id:x&&x.id,title:(x&&x.section_number?x.section_number+'. ':'')+((x&&x.title)||'').trim(),streams:[{label:'MP3',url:x&&x.listen_url}]}))
+  },'https://librivox.org/',0,'audio');
+}
+function lvItems(j){
+  const books=j&&Array.isArray(j.books)?j.books:[];
+  return books.map(b=>{
+    const au=(b.authors||[]).map(x=>[x.first_name,x.last_name].filter(Boolean).join(' ')).filter(Boolean).join(', ');
+    const d=String(b.description||'').replace(/<[^>]*>/g,' ');
+    return {
+      id:'lv'+b.id,title:b.title,year:b.copyright_year&&b.copyright_year!=='0'?b.copyright_year:'',
+      kind:'audio',description:[au&&'De '+au+'.',b.language,b.totaltime&&('Duração '+b.totaltime+'.'),d].filter(Boolean).join(' '),
+      episodes:(b.sections||[]).map(x=>({id:'s'+x.id,title:(x.section_number?x.section_number+'. ':'')+(x.title||'Capítulo'),streams:[{url:x.listen_url}]}))
+    };
+  });
+}
+function loadCatalog(a,c){
+  if(c.items)return Promise.resolve(c.items);
+  const k=a.id+'|'+c.id;
+  if(ADC.has(k))return ADC.get(k);
+  const p=(async()=>{
+    const r=await fetch(c.url);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const j=await r.json();
+    if(c.adapter==='librivox')return uniqIds((Array.isArray(j&&j.books)?j.books:[]).slice(0,100).map(lvItem).filter(it=>it.episodes.length));
+    const arr=c.format==='librivox'?lvItems(j):(Array.isArray(j)?j:(j&&Array.isArray(j.items)?j.items:[]));
+    return uniqIds(arr.slice(0,500).map((it,i)=>normItem(it,c.url,i,c.kind)).filter(it=>it.streams.length||it.episodes.length));
+  })();
+  ADC.set(k,p);
+  p.catch(()=>ADC.delete(k));
+  return p;
+}
+function addonCard(a,c,it){
+  const k=a.id+'|'+c.id+'|'+it.id;
+  AIT.set(k,{a,it});
+  return '<button class="card adc" data-ai="'+esc(k)+'"><span class="thumb po" style="display:block"><span class="ph">'+initial(it.title)+'</span>'
+    +(it.poster?'<img src="'+esc(it.poster)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">':'')+'</span>'
+    +'<span class="ct" style="display:-webkit-box">'+esc(it.title)+'</span><span class="cy" style="display:block">'+esc(it.sub||it.year||a.name)+'</span></button>';
+}
+function vcard(p){
+  return '<button class="card adc" data-vk="'+esc(p.key)+'"><span class="thumb po" style="display:block"><span class="ph">'+initial(p.title)+'</span>'
+    +(p.img?'<img src="'+esc(p.img)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">':'')
+    +'<span class="bar"><i style="width:'+(p.d?Math.min(100,p.t/p.d*100):0)+'%"></i></span></span>'
+    +'<span class="ct" style="display:-webkit-box">'+esc(p.title)+'</span><span class="cy" style="display:block">Addon</span></button>';
+}
+function renderAddonRows(){
+  const box=$('#addon-rows');
+  const list=enabledAddons();
+  box.innerHTML=list.flatMap(a=>a.catalogs.map(c=>'<div class="sec"><h2>'+esc(c.name)+'</h2><p class="sub">Addon '+esc(a.name)+'</p><div class="row" data-a="'+esc(a.id)+'" data-c="'+esc(c.id)+'">'+skels(6)+'</div></div>')).join('');
+  $$('#addon-rows .row').forEach(async row=>{
+    const a=addons.find(x=>x.id===row.dataset.a),c=a&&a.catalogs.find(x=>x.id===row.dataset.c);
+    if(!c)return;
+    try{
+      const items=await loadCatalog(a,c);
+      row.innerHTML=items.slice(0,20).map(it=>addonCard(a,c,it)).join('')||'<div class="empty">Este catálogo está vazio.</div>';
+    }catch(e){
+      row.innerHTML='<div class="err">Não foi possível carregar este catálogo. O endereço pode estar offline ou não permitir pedidos de outros sites.</div>';
+    }
+  });
+}
+async function runAddonSearch(){
+  const box=$('#results');
+  $('#more').hidden=true;
+  const list=enabledAddons();
+  if(!list.length){
+    box.innerHTML='<div class="empty" style="grid-column:1/-1">Ainda não tens addons ligados. Instala um no separador Addons.</div>';
+    $('#count').textContent='';return;
+  }
+  box.innerHTML=skels(12);$('#count').textContent='A carregar…';
+  const all=[];
+  await Promise.all(list.flatMap(a=>a.catalogs.map(async c=>{
+    try{(await loadCatalog(a,c)).forEach(it=>all.push({a,c,it}))}catch(e){}
+  })));
+  const q=S.q.trim().toLowerCase();
+  const f=all.filter(x=>!q||x.it.title.toLowerCase().includes(q)||x.it.description.toLowerCase().includes(q));
+  $('#count').textContent=f.length?f.length.toLocaleString('pt-PT')+' títulos'+(f.length>200?' (primeiros 200)':''):'';
+  box.innerHTML=f.length?f.slice(0,200).map(x=>addonCard(x.a,x.c,x.it)).join(''):'<div class="empty" style="grid-column:1/-1">Nada encontrado nos teus addons.</div>';
+}
+function openAddonItem(k){
+  const e=AIT.get(k);if(!e)return;
+  const {a,it}=e;
+  const audio=it.kind==='audio',live=it.kind==='live';
+  const eps=it.episodes.length?it.episodes:[{id:it.id,title:it.title,streams:it.streams,subtitles:it.subtitles}];
+  const tracks=eps.map(ep=>({
+    key:'ad:'+a.id+':'+it.id+':'+ep.id,title:ep.title,sub:'',img:it.poster,by:a.name,live,
+    sources:ep.streams,subs:ep.subtitles||[],url:ep.streams[0].url
+  }));
+  openSheet({title:it.title,sub:[it.sub,it.year,a.name].filter(Boolean).join(' · '),cover:it.poster,kind:audio?(live?'radio':'music'):'video',live:audio&&live,media:audio?'audio':'video',ctx:{type:'addon'}},
+    async()=>({tracks,desc:it.description}));
+}
+function resumeVideo(key){
+  const p=progress[key];if(!p||!p.sources)return;
+  openPlayer({key,id:null,title:p.title,sources:p.sources,subs:p.subs||[],start:0,keep:{addon:true,img:p.img,sources:p.sources,subs:p.subs||[]}});
+}
+
+/* gestão de addons */
+const adndlg=$('#adndlg');
+let pend=null;
+const BB='https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/';
+const LIBRIVOX_ADDON={"id": "librivox.org", "name": "LibriVox", "version": "1.0.0", "author": "LibriVox (voluntários)", "description": "Audiolivros em domínio público lidos por voluntários, direto do catálogo do librivox.org.", "catalogs": [{"id": "pt", "name": "Audiolivros em português", "kind": "audio", "adapter": "librivox", "url": "https://librivox.org/api/feed/audiobooks?format=json&extended=1&limit=24&language=Portuguese"}, {"id": "en", "name": "Audiolivros em inglês", "kind": "audio", "adapter": "librivox", "url": "https://librivox.org/api/feed/audiobooks?format=json&extended=1&limit=24&language=English"}, {"id": "es", "name": "Audiolivros em espanhol", "kind": "audio", "adapter": "librivox", "url": "https://librivox.org/api/feed/audiobooks?format=json&extended=1&limit=24&language=Spanish"}, {"id": "fr", "name": "Audiolivros em francês", "kind": "audio", "adapter": "librivox", "url": "https://librivox.org/api/feed/audiobooks?format=json&extended=1&limit=24&language=French"}, {"id": "poesia", "name": "Poesia", "kind": "audio", "adapter": "librivox", "url": "https://librivox.org/api/feed/audiobooks?format=json&extended=1&limit=24&genre=Poetry"}, {"id": "contos", "name": "Contos", "kind": "audio", "adapter": "librivox", "url": "https://librivox.org/api/feed/audiobooks?format=json&extended=1&limit=24&genre=Short%20Stories"}]};
+const SAMPLE_ADDON={
+  id:'exemplo.filmes-abertos',name:'Filmes abertos da Blender',version:'1.0.0',author:'Blender Foundation (exemplo)',
+  description:'Filmes de animação abertos, com licença Creative Commons. Serve de exemplo e de modelo.',
+  catalogs:[
+    {id:'filmes',name:'Filmes abertos',kind:'video',items:[
+      {id:'bbb',title:'Big Buck Bunny',year:'2008',description:'Curta de animação sobre um coelho enorme e três roedores.',streams:[{label:'MP4',url:BB+'BigBuckBunny.mp4'}]},
+      {id:'ed',title:'Elephants Dream',year:'2006',description:'O primeiro filme aberto da Blender, uma história surreal passada numa máquina gigante.',streams:[{label:'MP4',url:BB+'ElephantsDream.mp4'}]},
+      {id:'sintel',title:'Sintel',year:'2010',description:'Uma jovem procura o dragão que criou e perdeu.',streams:[{label:'MP4',url:BB+'Sintel.mp4'}]},
+      {id:'tos',title:'Tears of Steel',year:'2012',description:'Ficção científica com atores reais e efeitos digitais.',streams:[{label:'MP4',url:BB+'TearsOfSteel.mp4'}]}
+    ]},
+    {id:'serie',name:'Exemplo de série',kind:'video',items:[
+      {id:'mini',title:'Minissérie de exemplo',year:'2026',description:'Mostra como se escrevem episódios dentro de um título.',episodes:[
+        {id:'e1',title:'Episódio 1: Big Buck Bunny',streams:[{label:'MP4',url:BB+'BigBuckBunny.mp4'}]},
+        {id:'e2',title:'Episódio 2: Sintel',streams:[{label:'MP4',url:BB+'Sintel.mp4'}]}
+      ]}
+    ]}
+  ]
+};
+function adStat(msg,isErr){const s=$('#adstat');s.textContent=msg||'';s.style.color=isErr?'var(--accent)':''}
+function showPreview(m,url){
+  pend={m,url};
+  const ex=addons.find(a=>a.id===m.id);
+  $('#adnt').textContent=ex?'Atualizar addon':'Instalar addon';
+  $('#adnmeta').textContent=[m.name,m.version&&'v'+m.version,m.author&&'por '+m.author].filter(Boolean).join(' · ');
+  $('#adndesc').textContent=m.description||'Sem descrição.';
+  const n=m.catalogs.length;
+  let host='';try{host=url?new URL(url).host:''}catch(e){}
+  $('#adncats').textContent=n+(n===1?' catálogo: ':' catálogos: ')+m.catalogs.map(c=>c.name+(c.items?' ('+c.items.length+')':' (lista remota)')).join(', ')+'. '+(host?'Origem: '+host+'.':'Origem: ficheiro deste aparelho.');
+  $('#adnok').textContent=ex?'Atualizar':'Instalar';
+  adndlg.showModal();
+}
+async function previewFromUrl(raw){
+  adStat('A ler o addon…');
+  try{
+    const u=safeUrl(raw);
+    if(!u)throw new Error('Endereço inválido. Usa um endereço que comece por https:// ou http://.');
+    let r;
+    try{r=await fetch(u)}catch(e){throw new Error('Não foi possível ler o endereço. O servidor pode estar offline ou não permitir pedidos de outros sites (CORS).')}
+    if(!r.ok)throw new Error('O endereço respondeu com o erro '+r.status+'.');
+    let j;
+    try{j=await r.json()}catch(e){throw new Error('O endereço não devolveu um ficheiro JSON.')}
+    showPreview(parseManifest(j,u),u);
+    adStat('');
+  }catch(e){adStat(e.message,true)}
+}
+function saveJson(name,obj){
+  try{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}));
+    a.download=name;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+    return true;
+  }catch(e){return false}
+}
+function renderAddons(){
+  $('#adlist').innerHTML=addons.length?addons.map((a,i)=>{
+    const n=(a.catalogs||[]).length;
+    let src='ficheiro deste aparelho';
+    if(a.url){try{src=new URL(a.url).host}catch(e){src=a.url}}
+    return '<div class="adrow'+(a.enabled===false?' off':'')+'"><div class="top2"><div class="info"><div class="nm3">'+esc(a.name)+(a.version?' <span class="mt">v'+esc(a.version)+'</span>':'')+'</div>'
+      +'<div class="mt">'+esc([a.author&&'por '+a.author,n+(n===1?' catálogo':' catálogos'),src].filter(Boolean).join(' · '))+'</div></div>'
+      +'<div class="acts"><button class="btn ghost" type="button" data-adt="'+i+'">'+(a.enabled===false?'Ligar':'Desligar')+'</button>'
+      +(a.url?'<button class="btn ghost" type="button" data-adu="'+i+'">Atualizar</button>':'')
+      +'<button class="btn ghost" type="button" data-adr="'+i+'">Remover</button></div></div>'
+      +(a.description?'<div class="mt">'+esc(a.description)+'</div>':'')+'</div>';
+  }).join(''):'<div class="empty">Ainda não tens addons. Instala o de exemplo para ver como funciona.</div>';
+}
+$('#adform').addEventListener('submit',e=>{e.preventDefault();previewFromUrl($('#adurl').value.trim())});
+$('#adfile').addEventListener('click',()=>$('#adfinput').click());
+$('#adfinput').addEventListener('change',async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{
+    if(f.size>3e6)throw new Error('O ficheiro é grande demais (máximo 3 MB). Aloja a lista num endereço e usa "url" nos catálogos.');
+    let j;
+    try{j=JSON.parse(await f.text())}catch(x){throw new Error('O ficheiro não é um JSON válido.')}
+    showPreview(parseManifest(j,undefined),'');
+    adStat('');
+  }catch(err){adStat(err.message,true)}
+});
+$('#adlv').addEventListener('click',()=>{adStat('');showPreview(parseManifest(LIBRIVOX_ADDON,undefined),'')});
+$('#adsample').addEventListener('click',()=>{adStat('');showPreview(parseManifest(SAMPLE_ADDON,undefined),'')});
+$('#adtpl').addEventListener('click',()=>{
+  const ok=saveJson('modelo-addon.json',{...SAMPLE_ADDON,id:'o-meu.addon',name:'A minha lista',author:'O teu nome',description:'Troca estes dados pelos teus.'});
+  toast(ok?'Modelo guardado. Procura o ficheiro nas transferências.':'Não foi possível guardar o modelo neste navegador.');
+});
+$('#adncancel').addEventListener('click',()=>{pend=null;adndlg.close()});
+adndlg.addEventListener('click',e=>{if(e.target===adndlg){pend=null;adndlg.close()}});
+$('#adnok').addEventListener('click',()=>{
+  if(!pend)return;
+  const {m,url}=pend,i=addons.findIndex(a=>a.id===m.id);
+  const rec={...m,url:url||'',enabled:i>=0?addons[i].enabled!==false:true,added:i>=0?addons[i].added:Date.now()};
+  if(i>=0)addons[i]=rec;else addons.push(rec);
+  [...ADC.keys()].filter(k=>k.startsWith(m.id+'|')).forEach(k=>ADC.delete(k));
+  saveAddons();pend=null;adndlg.close();
+  $('#adurl').value='';renderAddons();
+  toast('Addon “'+m.name+'” '+(i>=0?'atualizado.':'instalado.'));
+});
+$('#adlist').addEventListener('click',e=>{
+  const t=e.target.closest('[data-adt]'),u=e.target.closest('[data-adu]'),r=e.target.closest('[data-adr]');
+  if(t){const a=addons[+t.dataset.adt];if(a){a.enabled=a.enabled===false;saveAddons();renderAddons()}}
+  if(u){const a=addons[+u.dataset.adu];if(a)previewFromUrl(a.url)}
+  if(r){
+    if(r.dataset.sure){addons.splice(+r.dataset.adr,1);saveAddons();renderAddons();toast('Addon removido.')}
+    else{r.dataset.sure='1';r.textContent='Confirmar remoção';setTimeout(()=>{if(r.isConnected){delete r.dataset.sure;r.textContent='Remover'}},3500)}
+  }
+});
+
+/* ---------- cliques: podcasts, áudio, continuar a ouvir ---------- */
+document.addEventListener('click',e=>{
+  const pc=e.target.closest('.pcard[data-pid]');
+  if(pc){
+    const p=POD.get(pc.dataset.pid);if(!p)return;
+    openSheet({title:p.name,sub:p.artist,cover:p.art,kind:'podcast',ctx:{type:'podcast',id:p.id},fol:{id:p.id,name:p.name,artist:p.artist,art:p.art}},
+      async()=>{const r=await loadPodcastTracks(p.id,p.name);return {tracks:r.tracks}});
+    return;
+  }
+  const ac=e.target.closest('.acard[data-aid]');
+  if(ac){
+    const m=AUM.get(ac.dataset.aid);if(!m)return;
+    const kind=AU.tab==='book'?'book':'music';
+    openSheet({title:m.title,sub:m.creator,cover:thumbUrl(m.id),kind,ctx:{type:'archive',id:m.id}},
+      async()=>{const r=await loadArchiveTracks(m.id,kind);return {tracks:r.tracks,title:r.meta.title,sub:[r.meta.creator,r.meta.year].filter(Boolean).join(' · '),desc:r.meta.desc}});
+    return;
+  }
+  const ai=e.target.closest('.card[data-ai]');
+  if(ai){openAddonItem(ai.dataset.ai);return}
+  const vk=e.target.closest('[data-vk]');
+  if(vk){resumeVideo(vk.dataset.vk);return}
+  const ak=e.target.closest('[data-ak]');
+  if(ak){resumeAudio(ak.dataset.ak);return}
+  if(e.target.id==='pretry')searchPods();
+  if(e.target.id==='aretry')loadAudioList(true);
+});
+
+/* ---------- cliques em cartões ---------- */
+document.addEventListener('click',e=>{
+  const c=e.target.closest('.card[data-id]');if(!c)return;
+  if(c.dataset.local){
+    const l=locals.find(x=>x.key===c.dataset.id);
+    if(l){openPlayer({key:l.key,id:l.key,local:true,title:l.name.replace(/\.[^.]+$/,''),year:'',sources:[{label:'Ficheiro',url:l.url}],subs:l.subs,start:0})}
+    else{toast('Escolhe outra vez este ficheiro em “Os meus ficheiros” para continuar.');go('ficheiros')}
+    return;
+  }
+  openDetail(c.dataset.id);
+});
+
+let tt;
+function toast(msg){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>{t.hidden=true},3600)}
+
+route();
+})();
+</script>
+</body>
+</html>
