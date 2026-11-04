@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IRADU Filmes & Séries</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"></script>
+<style>
+:root{--bg:#17111b;--sf:#241a29;--sf2:#33253a;--tx:#f5ece6;--mu:#a99aa8;--rd:#d9392f;--gd:#f2b134;--r:14px;color-scheme:dark}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--tx);font:400 15px/1.5 "Bricolage Grotesque",system-ui,sans-serif;display:grid;grid-template-columns:210px 1fr}
+a{color:inherit;text-decoration:none}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gd);outline-offset:2px}
+nav{position:sticky;top:0;height:100vh;padding:24px 14px;background:var(--sf);display:flex;flex-direction:column;gap:4px}
+.logo{font-weight:800;font-size:26px;letter-spacing:.04em;padding:0 10px 18px;display:flex;align-items:center;gap:10px}
+.logo i{width:26px;height:26px;border-radius:8px 8px 8px 2px;background:linear-gradient(135deg,var(--rd) 55%,var(--gd) 55%)}
+.logo small{display:block;font-size:11px;font-weight:400;color:var(--mu);letter-spacing:0;margin-top:-4px}
+nav a{padding:10px 12px;border-radius:10px;color:var(--mu)}
+nav a:hover{background:var(--sf2);color:var(--tx)}
+nav a.on{background:var(--rd);color:#fff;font-weight:600}
+main{min-width:0;padding:22px 32px 60px}
+.top{display:flex;gap:12px;margin-bottom:22px}
+.top input{flex:1;max-width:480px;background:var(--sf);border:1px solid var(--sf2);border-radius:999px;padding:10px 18px}
+h1{font-size:28px;font-weight:800;margin-bottom:14px}
+h2{font-size:18px;font-weight:600;margin:26px 0 12px}
+.row{display:flex;gap:14px;overflow-x:auto;padding-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px}
+.card{display:block;flex:0 0 150px}
+.grid .card{flex:auto}
+.poster{aspect-ratio:2/3;border-radius:var(--r);background-size:cover;background-position:center;display:flex;align-items:flex-end;padding:10px;font-weight:800;line-height:1.1;overflow:hidden;transition:transform .15s}
+.card:hover .poster{transform:translateY(-3px)}
+.card b{display:block;font-weight:600;margin-top:8px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card span{color:var(--mu);font-size:12px}
+.btn{background:var(--rd);border:0;border-radius:10px;padding:10px 18px;font-weight:600;cursor:pointer}
+.btn.alt{background:var(--sf2)}
+.btn.sm{padding:6px 12px;font-size:13px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+select,.fld{background:var(--sf);border:1px solid var(--sf2);border-radius:10px;padding:9px 12px}
+.hero{position:relative;border-radius:20px;overflow:hidden;background:var(--sf);background-size:cover;background-position:center}
+.hero>div{padding:34px;background:linear-gradient(90deg,var(--bg) 25%,transparent 120%);display:flex;gap:28px;flex-wrap:wrap}
+.hero .poster{width:190px;flex:none}
+.hero p{max-width:60ch;color:#d8cbd3;margin:10px 0 16px}
+.tags{color:var(--gd);font-size:13px}
+.item{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--sf);border-radius:12px;padding:12px 16px;margin-bottom:8px;width:100%;border:0;text-align:left;cursor:pointer}
+.item:hover{background:var(--sf2)}
+.item small{display:block;color:var(--mu)}
+.badge{font-size:11px;padding:2px 8px;border-radius:99px;background:var(--gd);color:#2a1a00;font-weight:600;white-space:nowrap}
+.seasons{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.seasons .on{background:var(--gd);color:#2a1a00}
+.muted{color:var(--mu)}
+#pl{position:fixed;inset:0;background:#000;z-index:9;display:none;flex-direction:column}
+#pl.on{display:flex}
+#pl header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:#0008}
+#pl video,#pl iframe{flex:1;width:100%;min-height:0;border:0;background:#000}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--gd);color:#2a1a00;padding:10px 18px;border-radius:10px;display:none;z-index:10;max-width:90vw}
+@media(max-width:800px){body{grid-template-columns:1fr}nav{position:static;height:auto;flex-direction:row;overflow-x:auto;padding:10px}.logo{padding:0 10px 0 0}.logo small{display:none}main{padding:16px}.hero>div{padding:18px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo"><i></i><div>IRADU<small>Filmes &amp; Séries</small></div></div>
+  <a href="#/home" data-r="home">Início</a>
+  <a href="#/discover" data-r="discover">Descobrir</a>
+  <a href="#/lib" data-r="lib">Biblioteca</a>
+  <a href="#/addons" data-r="addons">Addons</a>
+  <a href="#/settings" data-r="settings">Definições</a>
+</nav>
+<main>
+  <form class="top" id="sf"><input id="q" type="search" placeholder="Pesquisar filmes, séries e animes" aria-label="Pesquisar"></form>
+  <div id="v"></div>
+</main>
+<div id="pl"><header><span id="pt"></span><button class="btn alt sm" id="pc">Fechar</button></header><div id="pm" style="display:contents"></div></div>
+<div id="toast" role="status"></div>
+
+<script>
+/* ============ Camada de dados ============ */
+const $=s=>document.querySelector(s), v=$('#v');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store={get:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set:(k,x)=>{try{localStorage.setItem(k,JSON.stringify(x))}catch{}}};
+const toast=m=>{const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',4500)};
+
+/* Addon embutido (conteúdo aberto) para testar sem instalar nada */
+const DEMO='builtin:demo', G='https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/';
+const demoManifest={id:'iradu.demo',name:'IRADU Demo',version:'1.0.0',description:'Conteúdo aberto (Blender Foundation) para testar o leitor.',types:['movie','series'],resources:['catalog','meta','stream'],idPrefixes:['iradu:'],catalogs:[{type:'movie',id:'m',name:'Filmes abertos'},{type:'series',id:'s',name:'Séries abertas'}]};
+const demoDB={
+ 'iradu:bbb':{type:'movie',name:'Big Buck Bunny',releaseInfo:'2008',genres:['Animação'],description:'Um coelho gigante resolve contas com três roedores. Curta-metragem Creative Commons.',u:G+'BigBuckBunny.mp4'},
+ 'iradu:sintel':{type:'movie',name:'Sintel',releaseInfo:'2010',genres:['Fantasia'],description:'Uma jovem procura o dragão que lhe roubou a companhia.',u:G+'Sintel.mp4'},
+ 'iradu:tos':{type:'movie',name:'Tears of Steel',releaseInfo:'2012',genres:['Ficção científica'],description:'Guerreiros e cientistas tentam salvar o mundo de robôs.',u:G+'TearsOfSteel.mp4'},
+ 'iradu:ed':{type:'series',name:'Elephants Dream',releaseInfo:'2006',genres:['Animação'],description:'Dois personagens exploram uma máquina estranha.',videos:[{id:'iradu:ed:1:1',season:1,episode:1,title:'Parte 1',u:G+'ElephantsDream.mp4'},{id:'iradu:ed:1:2',season:1,episode:2,title:'Parte 2',u:G+'ForBiggerBlazes.mp4'}]}
+};
+const demo=p=>{const [,res,type,rest]=p.match(/^\/(\w+)\/(\w+)\/(.+)\.json$/)||[];
+ if(res==='catalog')return{metas:Object.entries(demoDB).filter(([,x])=>x.type===type).map(([id,x])=>({id,type,name:x.name,releaseInfo:x.releaseInfo,genres:x.genres}))};
+ const id=decodeURIComponent(rest||''),it=demoDB[id.split(':').slice(0,2).join(':')];if(!it)return{};
+ if(res==='meta')return{meta:{id:id,type,name:it.name,releaseInfo:it.releaseInfo,genres:it.genres,description:it.description,videos:it.videos}};
+ const u=it.videos?it.videos.find(x=>x.id===id)?.u:it.u;return{streams:[{name:'Direto',title:'MP4 · '+it.name,url:u}]}};
+
+let addons=store.get('addons',[{base:DEMO,manifest:demoManifest}]);
+let cfg=store.get('cfg',{server:'http://127.0.0.1:11471'});
+const api=(a,p)=>a.base===DEMO?Promise.resolve(demo(p)):fetch(a.base+p,{signal:AbortSignal.timeout(15000)}).then(r=>{if(!r.ok)throw Error(r.status);return r.json()});
+
+/* Protocolo de addons Stremio: recursos, tipos e prefixos de id */
+const supports=(a,res,type,id)=>(a.manifest.resources||[]).some(r=>{
+ const n=typeof r==='string'?r:r.name;if(n!==res)return false;
+ const types=r.types||a.manifest.types||[],pre=r.idPrefixes||a.manifest.idPrefixes;
+ return(!types.length||types.includes(type))&&(!pre||!id||pre.some(p=>id.startsWith(p)))});
+const cats=()=>addons.flatMap(a=>(a.manifest.catalogs||[]).map(c=>({a,c})));
+const extraOf=c=>(c.extra||[]).concat((c.extraSupported||[]).map(name=>({name})));
+const needsExtra=c=>(c.extra||[]).some(e=>e.isRequired)||(c.extraRequired||[]).length>0;
+const canSearch=c=>extraOf(c).some(e=>e.name==='search');
+const catPath=(c,ex)=>`/catalog/${c.type}/${encodeURIComponent(c.id)}${ex?'/'+ex:''}.json`;
+
+async function install(url){
+ url=url.trim().replace(/^stremio:\/\//,'https://').replace(/\/manifest\.json.*$/,'').replace(/\/$/,'');
+ if(addons.some(a=>a.base===url))throw Error('Este addon já está instalado.');
+ const m=await fetch(url+'/manifest.json',{signal:AbortSignal.timeout(15000)}).then(r=>r.json());
+ if(!m.id||!m.resources)throw Error('Manifesto inválido.');
+ addons.push({base:url,manifest:m});store.set('addons',addons);
+}
+
+/* ============ UI ============ */
+const metaCache={};
+const hue=s=>[...String(s)].reduce((h,c)=>h*31+c.charCodeAt(0)|0,7)%360;
+const card=m=>{metaCache[m.id]=metaCache[m.id]||m;
+ const bg=m.poster?`background-image:url('${esc(m.poster)}')`:`background:linear-gradient(160deg,hsl(${hue(m.name)} 55% 32%),hsl(${(hue(m.name)+40)%360} 60% 16%))`;
+ return`<a class="card" href="#/detail/${m.type}/${encodeURIComponent(m.id)}"><div class="poster" style="${bg}">${m.poster?'':esc(m.name)}</div><b>${esc(m.name)}</b><span>${esc(m.releaseInfo||m.year||m.type)}</span></a>`};
+let tok=0;
+const lib=()=>store.get('lib',{}), prog=()=>store.get('prog',{});
+
+async function rowsFor(list,tk){
+ for(const {a,c} of list){
+  api(a,catPath(c)).then(r=>{if(tk!==tok||!(r.metas||[]).length)return;
+   v.insertAdjacentHTML('beforeend',`<h2>${esc(c.name||c.id)} <span class="muted">· ${esc(a.manifest.name)}</span></h2><div class="row">${r.metas.slice(0,30).map(card).join('')}</div>`)}).catch(()=>{});
+ }
+}
+function home(){
+ const tk=++tok,pr=Object.values(prog()).sort((a,b)=>b.at-a.at).slice(0,12);
+ v.innerHTML=`<h1>Início</h1>`+(pr.length?`<h2>Continuar a ver</h2><div class="row">${pr.map(p=>card(p.meta)).join('')}</div>`:'');
+ const list=cats().filter(x=>!needsExtra(x.c)).slice(0,12);
+ if(!list.length)v.insertAdjacentHTML('beforeend','<p class="muted">Ainda não há catálogos. Instale um addon na secção Addons.</p>');
+ rowsFor(list,tk);
+}
+function discover(){
+ const tk=++tok,all=cats().filter(x=>!needsExtra(x.c));
+ v.innerHTML=`<h1>Descobrir</h1><div class="bar"><select id="dc">${all.map((x,i)=>`<option value="${i}">${esc(x.c.name||x.c.id)} · ${esc(x.a.manifest.name)} (${esc(x.c.type)})</option>`).join('')}</select><select id="dg"></select></div><div class="grid" id="dgrid"></div><p><button class="btn alt" id="dm" hidden>Carregar mais</button></p>`;
+ if(!all.length){v.innerHTML+='<p class="muted">Sem catálogos disponíveis.</p>';return}
+ let skip=0;
+ const load=async reset=>{
+  const {a,c}=all[$('#dc').value],g=$('#dg').value,ex=[g&&'genre='+encodeURIComponent(g),skip&&'skip='+skip].filter(Boolean).join('&');
+  if(reset){skip=0;$('#dgrid').innerHTML=''}
+  try{const r=await api(a,catPath(c,ex));if(tk!==tok)return;const ms=r.metas||[];
+   $('#dgrid').insertAdjacentHTML('beforeend',ms.map(card).join(''));skip+=ms.length;$('#dm').hidden=!ms.length}catch{toast('Falha ao carregar o catálogo.')}
+ };
+ const setG=()=>{const {c}=all[$('#dc').value],g=extraOf(c).find(e=>e.name==='genre');
+  $('#dg').innerHTML=g?'<option value="">Todos os géneros</option>'+(g.options||[]).map(o=>`<option>${esc(o)}</option>`).join(''):'';$('#dg').hidden=!g};
+ $('#dc').onchange=()=>{setG();load(true)};$('#dg').onchange=()=>load(true);$('#dm').onclick=()=>load();setG();load(true);
+}
+async function search(q){
+ const tk=++tok;v.innerHTML=`<h1>Resultados para “${esc(q)}”</h1><div class="grid" id="sg"></div>`;let n=0;
+ const jobs=cats().filter(x=>canSearch(x.c)).map(({a,c})=>api(a,catPath(c,'search='+encodeURIComponent(q))).then(r=>{
+  if(tk!==tok)return;const ms=r.metas||[];n+=ms.length;$('#sg').insertAdjacentHTML('beforeend',ms.map(card).join(''))}).catch(()=>{}));
+ await Promise.all(jobs);if(tk===tok&&!n)v.insertAdjacentHTML('beforeend','<p class="muted">Nada encontrado. Experimente outro termo ou instale mais addons.</p>');
+}
+function library(){
+ tok++;const l=Object.values(lib());
+ v.innerHTML=`<h1>Biblioteca</h1>`+(l.length?`<div class="grid">${l.map(card).join('')}</div>`:'<p class="muted">Vazia. Abra um título e escolha “Guardar na biblioteca”.</p>');
+}
+async function detail(type,id){
+ const tk=++tok;let m=metaCache[id]||{id,type,name:id};
+ v.innerHTML='<p class="muted">A carregar…</p>';
+ for(const a of addons.filter(a=>supports(a,'meta',type,id))){
+  try{const r=await api(a,`/meta/${type}/${encodeURIComponent(id)}.json`);if(r.meta){m={...m,...r.meta};break}}catch{}
+ }
+ if(tk!==tok)return;metaCache[id]=m;
+ const bg=m.background?`background-image:url('${esc(m.background)}')`:'';
+ const vids=(m.videos||[]).filter(x=>x.id),seasons=[...new Set(vids.map(x=>x.season??1))].sort((a,b)=>(a||99)-(b||99));
+ const saved=!!lib()[id];
+ v.innerHTML=`<div class="hero" style="${bg}"><div><div class="poster" style="${m.poster?`background-image:url('${esc(m.poster)}')`:`background:hsl(${hue(m.name)} 45% 25%)`}"></div><div><h1>${esc(m.name)}</h1><div class="tags">${esc([m.releaseInfo||m.year,m.runtime,(m.genres||[]).join(', ')].filter(Boolean).join(' · '))}</div><p>${esc(m.description||'Sem sinopse.')}</p><button class="btn alt" id="sv">${saved?'Remover da biblioteca':'Guardar na biblioteca'}</button></div></div></div>
+ ${vids.length?`<h2>Episódios</h2><div class="seasons" id="ss">${seasons.map(s=>`<button class="btn alt sm" data-s="${s}">${s?'Temporada '+s:'Especiais'}</button>`).join('')}</div><div id="eps"></div>`:''}
+ <h2 id="sh">Fontes</h2><div id="st" class="muted">${vids.length?'Escolha um episódio.':''}</div>`;
+ $('#sv').onclick=()=>{const l=lib();if(l[id])delete l[id];else l[id]={id,type,name:m.name,poster:m.poster,releaseInfo:m.releaseInfo};store.set('lib',l);detail(type,id)};
+ if(vids.length){
+  const showS=s=>{[...$('#ss').children].forEach(b=>b.classList.toggle('on',b.dataset.s==s));
+   $('#eps').innerHTML=vids.filter(x=>(x.season??1)==s).sort((a,b)=>a.episode-b.episode).map(x=>`<button class="item" data-v="${esc(x.id)}"><span>${x.episode!=null?x.episode+'. ':''}${esc(x.title||x.name||'Episódio')}</span></button>`).join('');
+   $('#eps').querySelectorAll('.item').forEach(b=>b.onclick=()=>{$('#sh').textContent='Fontes · '+b.textContent;streams(type,b.dataset.v,m)})};
+  $('#ss').onclick=e=>e.target.dataset.s!=null&&showS(e.target.dataset.s);showS(seasons[0]);
+ }else streams(type,id,m);
+}
+const kind=s=>s.url?'Direto':s.infoHash?'Torrent':s.ytId?'YouTube':'Externo';
+async function streams(type,vid,m){
+ const box=$('#st'),tk=tok;box.className='';box.innerHTML='<p class="muted">A procurar fontes…</p>';
+ const list=[],srcs=addons.filter(a=>supports(a,'stream',type,vid));
+ if(!srcs.length){box.innerHTML='<p class="muted">Nenhum addon de fontes instalado para este tipo de conteúdo.</p>';return}
+ let done=0;
+ srcs.forEach(a=>api(a,`/stream/${type}/${encodeURIComponent(vid)}.json`).then(r=>{
+  (r.streams||[]).forEach(s=>list.push({s,a}))}).catch(()=>{}).finally(()=>{
+  if(tk!==tok)return;done++;
+  box.innerHTML=list.map(({s,a},i)=>`<button class="item" data-i="${i}"><span>${esc((s.name||'').replace(/\n/g,' '))} <small>${esc((s.title||s.description||'').split('\n').join(' · '))}</small><small>${esc(a.manifest.name)}</small></span><span class="badge">${kind(s)}</span></button>`).join('')+(done<srcs.length?'<p class="muted">A carregar mais fontes…</p>':list.length?'':'<p class="muted">Sem fontes disponíveis.</p>');
+  box.querySelectorAll('.item').forEach(b=>b.onclick=()=>play(list[b.dataset.i].s,m,vid));
+ }));
+}
+
+/* ============ Leitor: HTTP/HLS direto, torrent via servidor local, YouTube ============ */
+let hls;
+function play(s,m,vid){
+ if(s.externalUrl){window.open(s.externalUrl,'_blank','noopener');return}
+ const pm=$('#pm');$('#pt').textContent=m.name;$('#pl').classList.add('on');
+ if(s.ytId){pm.innerHTML=`<iframe allow="autoplay;fullscreen" allowfullscreen src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(s.ytId)}?autoplay=1"></iframe>`;return}
+ let src=s.url;
+ if(s.infoHash){
+  const tr=(s.sources||[]).filter(x=>String(x).startsWith('tracker:')).map(x=>x.slice(8));
+  src=`${cfg.server}/stream/${s.infoHash}${s.fileIdx!=null?'/'+s.fileIdx:''}?`+tr.map(t=>'tr='+encodeURIComponent(t)).join('&');
+ }
+ if(!src){closePl();toast('Fonte sem endereço reproduzível.');return}
+ if(s.behaviorHints?.notWebReady)toast('Esta fonte pode não ser compatível com o navegador.');
+ pm.innerHTML='<video controls autoplay playsinline></video>';const vd=pm.firstChild;
+ (s.subtitles||[]).forEach(t=>{const k=document.createElement('track');k.kind='subtitles';k.src=t.url;k.srclang=(t.lang||'und').slice(0,2);k.label=t.lang||'Legenda';vd.appendChild(k)});
+ if(/\.m3u8/.test(src)&&window.Hls&&Hls.isSupported()){hls=new Hls();hls.loadSource(src);hls.attachMedia(vd)}else vd.src=src;
+ const p=prog()[vid];if(p)vd.addEventListener('loadedmetadata',()=>{if(p.t>10&&p.t<vd.duration-30)vd.currentTime=p.t},{once:true});
+ vd.onerror=()=>toast(s.infoHash?'Falha no torrent. Verifique se o servidor local está ligado (node server.js) e o endereço em Definições.':'Não foi possível reproduzir esta fonte neste navegador.');
+ vd.ontimeupdate=()=>{if(Math.floor(vd.currentTime)%5)return;const a=prog();a[vid]={t:vd.currentTime,d:vd.duration,at:Date.now(),meta:{id:m.id,type:m.type,name:m.name,poster:m.poster,releaseInfo:m.releaseInfo}};store.set('prog',a)};
+}
+function closePl(){if(hls){hls.destroy();hls=null}$('#pm').innerHTML='';$('#pl').classList.remove('on')}
+$('#pc').onclick=closePl;addEventListener('keydown',e=>e.key==='Escape'&&closePl());
+
+/* ============ Addons e definições ============ */
+function addonsView(){
+ tok++;
+ v.innerHTML=`<h1>Addons</h1><p class="muted" style="max-width:62ch;margin-bottom:14px">Cole o endereço do manifesto de um addon compatível com o protocolo Stremio. Instale apenas fontes de conteúdo que tem direito a utilizar.</p>
+ <form class="bar" id="af"><input class="fld" id="au" style="flex:1;max-width:520px" placeholder="https://exemplo.com/manifest.json" required><button class="btn">Instalar</button></form>
+ ${addons.map((a,i)=>`<div class="item" style="cursor:default"><span><b>${esc(a.manifest.name)}</b> <small style="display:inline">v${esc(a.manifest.version||'?')}</small><small>${esc(a.manifest.description||'')}</small><small>${esc((a.manifest.resources||[]).map(r=>r.name||r).join(', '))} · ${esc((a.manifest.types||[]).join(', '))}</small></span><button class="btn alt sm" data-rm="${i}">Remover</button></div>`).join('')}`;
+ $('#af').onsubmit=async e=>{e.preventDefault();try{await install($('#au').value);toast('Addon instalado.');addonsView()}catch(x){toast('Não foi possível instalar: '+x.message)}};
+ v.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{addons.splice(+b.dataset.rm,1);store.set('addons',addons);addonsView()});
+}
+function settings(){
+ tok++;
+ v.innerHTML=`<h1>Definições</h1><h2>Servidor de torrents</h2><p class="muted" style="max-width:62ch;margin-bottom:10px">Endereço do servidor local (<code>node server.js</code>) que converte torrents em fluxo HTTP.</p><form class="bar" id="cf"><input class="fld" id="cs" style="width:320px" value="${esc(cfg.server)}"><button class="btn">Guardar</button></form><h2>Dados</h2><button class="btn alt" id="cl">Apagar biblioteca e progresso</button>`;
+ $('#cf').onsubmit=e=>{e.preventDefault();cfg.server=$('#cs').value.trim().replace(/\/$/,'');store.set('cfg',cfg);toast('Guardado.')};
+ $('#cl').onclick=()=>{store.set('lib',{});store.set('prog',{});toast('Dados apagados.')};
+}
+
+/* ============ Rotas ============ */
+function route(){
+ closePl();const [,r,a,b]=location.hash.split('/'),k=r||'home';
+ document.querySelectorAll('nav a').forEach(x=>x.classList.toggle('on',x.dataset.r===k));
+ if(k==='discover')discover();else if(k==='lib')library();else if(k==='addons')addonsView();else if(k==='settings')settings();
+ else if(k==='search')search(decodeURIComponent(a||''));else if(k==='detail')detail(a,decodeURIComponent(b||''));else home();
+}
+$('#sf').onsubmit=e=>{e.preventDefault();const q=$('#q').value.trim();if(q)location.hash='#/search/'+encodeURIComponent(q)};
+addEventListener('hashchange',route);route();
+</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "name": "iradu-filmes-series",
+  "productName": "IRADU Filmes & Séries",
+  "version": "1.0.0",
+  "description": "Centro multimédia com suporte a addons Stremio e streaming de torrents.",
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "server": "node server.js",
+    "dist": "electron-builder"
+  },
+  "dependencies": {
+    "webtorrent": "^2.5.1"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "ao.iradu.filmesseries",
+    "productName": "IRADU Filmes & Séries",
+    "files": ["main.js", "server.js", "index.html", "package.json"],
+    "asarUnpack": ["node_modules/**/*.node"],
+    "win": { "target": "nsis" },
+    "mac": { "target": "dmg", "category": "public.app-category.entertainment" },
+    "linux": { "target": "AppImage", "category": "AudioVideo" }
+  }
+}
