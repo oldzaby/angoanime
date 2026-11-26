@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Cine Livre</title>
+<title>StreamVault</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -208,7 +208,7 @@ footer{color:var(--muted);font-size:13px;padding-top:6px;padding-bottom:30px}
 
 <header class="top">
   <div class="wrap">
-    <div class="brand"><span class="mark"></span>Cine Livre</div>
+    <div class="brand"><span class="mark"></span>StreamVault</div>
     <nav id="nav" aria-label="Secções">
       <button data-v="inicio">Início</button>
       <button data-v="explorar">Explorar</button>
@@ -486,7 +486,7 @@ footer{color:var(--muted);font-size:13px;padding-top:6px;padding-bottom:30px}
     <div class="meta" id="adnmeta"></div>
     <div class="desc" id="adndesc"></div>
     <div class="meta" id="adncats"></div>
-    <div class="warn">O Cine Livre não verifica os direitos do conteúdo de um addon. Instala só addons de fontes em que confias e de conteúdo que tens direito de ver.</div>
+    <div class="warn">O StreamVault não verifica os direitos do conteúdo de um addon. Instala só addons de fontes em que confias e de conteúdo que tens direito de ver.</div>
     <div class="acts">
       <button class="btn" id="adnok" type="button">Instalar</button>
       <button class="btn ghost" id="adncancel" type="button">Cancelar</button>
@@ -1107,7 +1107,7 @@ function setMedia(t){
   if(!('mediaSession' in navigator))return;
   try{
     const ms=navigator.mediaSession;
-    ms.metadata=new MediaMetadata({title:t.title,artist:t.by||t.sub||'',album:A.kind==='radio'?'Rádio':'Cine Livre',artwork:t.img?[{src:t.img,sizes:'512x512'}]:[]});
+    ms.metadata=new MediaMetadata({title:t.title,artist:t.by||t.sub||'',album:A.kind==='radio'?'Rádio':'StreamVault',artwork:t.img?[{src:t.img,sizes:'512x512'}]:[]});
     ms.setActionHandler('play',()=>aud.play().catch(()=>{}));
     ms.setActionHandler('pause',()=>aud.pause());
     ms.setActionHandler('previoustrack',A.live?null:()=>stepTrack(-1));
@@ -1275,12 +1275,12 @@ $$('#btabs button').forEach(b=>b.addEventListener('click',()=>{btab=b.dataset.t;
 $('#hclear').addEventListener('click',()=>{hist=[];store.set('cl_hist',hist);renderFavs()});
 const BKEYS=['cl_favs','cl_prog','cl_later','cl_seen','cl_hist','cl_notes','cl_rfav','cl_pfol','cl_aprog','cl_rate','cl_addons'];
 $('#bexp').addEventListener('click',()=>{
-  const out={app:'cine-livre',versao:2,data:Date.now(),itens:{}};
+  const out={app:'streamvault',versao:2,data:Date.now(),itens:{}};
   BKEYS.forEach(k=>{const v=store.get(k,null);if(v!==null)out.itens[k]=v});
   try{
     const a=document.createElement('a');
     a.href=URL.createObjectURL(new Blob([JSON.stringify(out)],{type:'application/json'}));
-    a.download='cine-livre-copia-'+new Date().toISOString().slice(0,10)+'.json';
+    a.download='streamvault-copia-'+new Date().toISOString().slice(0,10)+'.json';
     document.body.appendChild(a);a.click();a.remove();
     setTimeout(()=>URL.revokeObjectURL(a.href),5000);
     toast('Cópia guardada. Procura o ficheiro nas transferências.');
@@ -1291,7 +1291,7 @@ $('#bimp').addEventListener('change',async e=>{
   const f=e.target.files[0];e.target.value='';if(!f)return;
   try{
     const j=JSON.parse(await f.text());
-    if(!j||j.app!=='cine-livre'||!j.itens||typeof j.itens!=='object')throw new Error('formato');
+    if(!j||j.app!=='streamvault'||!j.itens||typeof j.itens!=='object')throw new Error('formato');
     let n=0;
     BKEYS.forEach(k=>{
       const v=j.itens[k];if(v===undefined||v===null)return;
@@ -1300,7 +1300,7 @@ $('#bimp').addEventListener('change',async e=>{
     });
     toast('Cópia restaurada ('+n+' listas). A recarregar…');
     setTimeout(()=>location.reload(),900);
-  }catch(err){toast('Este ficheiro não é uma cópia do Cine Livre.')}
+  }catch(err){toast('Este ficheiro não é uma cópia do StreamVault.')}
 });
 
 /* ---------- continuar a ouvir ---------- */
